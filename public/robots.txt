@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.clicknx.com/sitemap-index.xml

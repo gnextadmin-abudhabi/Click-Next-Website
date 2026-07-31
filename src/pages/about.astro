@@ -1,0 +1,278 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { Icon } from 'astro-icon/components';
+import { business, yearsInBusiness } from '../data/business';
+import { serviceAreas } from '../data/serviceAreas';
+import { areaUrl, contactUrl } from '../lib/urls';
+
+const years = yearsInBusiness();
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: `About ${business.name}`,
+  description: business.description,
+  url: `${business.siteUrl}/about/`,
+  mainEntity: {
+    '@type': 'ProfessionalService',
+    name: business.name,
+    description: business.description,
+    foundingDate: `${business.foundedYear}`,
+    address: { '@type': 'PostalAddress', addressLocality: business.address.city, addressCountry: 'AE' },
+  },
+};
+---
+
+<BaseLayout
+  title={`About ${business.name} | Performance Marketing Agency Abu Dhabi`}
+  description={`Learn about ${business.name}, part of the GNEXT Group of digital companies. ${years}+ years of delivering data-driven performance marketing results across the UAE.`}
+  schema={schema}
+>
+  <Breadcrumbs crumbs={[{ label: 'About Us' }]} />
+
+  <!-- ============ HEADER ============ -->
+  <section class="py-20 lg:py-28">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center">
+        <span class="section-label">
+          <Icon name="lucide:info" class="size-3.5" />
+          About Us
+        </span>
+        <h1 class="mt-6 font-display text-5xl font-semibold tracking-tight text-neutral-900 sm:text-6xl lg:text-7xl">
+          Built on Data.<br />Driven by Results.
+        </h1>
+        <p class="mt-6 text-lg leading-relaxed text-neutral-500">
+          CLICKNX was founded in {business.foundedYear} as the performance marketing arm of the GNEXT Group, with a clear mission: replace marketing guesswork with data-driven strategies that deliver measurable business growth across the UAE.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OUR STORY ============ -->
+  <section class="pb-20 lg:pb-28">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-14 lg:grid-cols-2 lg:gap-20">
+        <div class="prose-editorial">
+          <h2>Our Story</h2>
+          <p>
+            GNEXT was born from a passion for innovation, with the goal of providing businesses with digital tools for growth. Building on over 15 years of experience in Abu Dhabi's digital space and 282+ projects delivered, the GNEXT Group recognized a critical gap: businesses needed a dedicated performance marketing partner focused solely on measurable ROI.
+          </p>
+          <p>
+            CLICKNX was created to fill that gap. As the performance marketing division of the GNEXT Group, we specialize exclusively in paid advertising, conversion optimization, and data-driven growth strategies. Our philosophy is simple: technology should empower, not complicate, businesses.
+          </p>
+          <p>
+            We believe in transparency, collaboration, and long-term partnerships. Your success is our success. Every campaign we launch is tracked to the conversion level, every recommendation is backed by data, and every dirham of your budget is optimized for maximum return.
+          </p>
+          <p>
+            Based in Abu Dhabi with operations across all seven emirates, we combine deep local market knowledge with global standards to deliver campaigns that resonate with UAE consumers and drive real business results.
+          </p>
+        </div>
+
+        <div>
+          <!-- The GNEXT Group card -->
+          <div class="rounded-2xl border border-neutral-200 bg-white p-8 transition-all duration-300 hover:shadow-xl">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="flex size-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                <Icon name="lucide:building-2" class="size-6" />
+              </div>
+              <div>
+                <h3 class="font-display text-xl font-semibold text-neutral-900">The GNEXT Group</h3>
+                <p class="text-sm text-neutral-400">One vision. Three specialized companies.</p>
+              </div>
+            </div>
+            <p class="text-sm leading-relaxed text-neutral-500 mb-6">
+              CLICKNX is proud to be part of a group of digital companies, each specializing in a critical area of digital growth. Together, we provide end-to-end digital solutions for businesses across the UAE.
+            </p>
+
+            <div class="space-y-4">
+              <!-- GNEXT -->
+              <a href="https://GNEXT.ae/" target="_blank" rel="noopener" class="group flex items-start gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-5 transition-all duration-300 hover:border-brand-200 hover:shadow-md">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 transition-all group-hover:scale-110">
+                  <Icon name="lucide:globe" class="size-5" />
+                </div>
+                <div>
+                  <span class="font-display text-base font-semibold text-neutral-900 group-hover:text-brand-700 transition-colors">GNEXT</span>
+                  <span class="block text-sm text-neutral-500">Web Design, Development, SEO & AI Solutions. The Website Solution Company in Abu Dhabi with 282+ projects delivered.</span>
+                  <span class="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-emerald-600">
+                    Visit GNEXT.ae
+                    <Icon name="lucide:external-link" class="size-3" />
+                  </span>
+                </div>
+              </a>
+
+              <!-- CLICKNX -->
+              <div class="group flex items-start gap-4 rounded-xl border-2 border-brand-200 bg-brand-50/50 p-5">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white">
+                  <Icon name="lucide:target" class="size-5" />
+                </div>
+                <div>
+                  <span class="font-display text-base font-semibold text-brand-700">CLICKNX</span>
+                  <span class="block text-sm text-neutral-500">Performance Marketing — Paid Ads, CRO, Analytics & Landing Pages. You are here.</span>
+                  <span class="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-brand-600">
+                    Performance Marketing Division
+                  </span>
+                </div>
+              </div>
+
+              <!-- GXLOCATE -->
+              <a href="https://GXLOCATE.com/" target="_blank" rel="noopener" class="group flex items-start gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-5 transition-all duration-300 hover:border-brand-200 hover:shadow-md">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition-all group-hover:scale-110">
+                  <Icon name="lucide:map-pin" class="size-5" />
+                </div>
+                <div>
+                  <span class="font-display text-base font-semibold text-neutral-900 group-hover:text-brand-700 transition-colors">GXLOCATE</span>
+                  <span class="block text-sm text-neutral-500">Local Intelligence & Google Business Profile Optimization. Get found by local customers.</span>
+                  <span class="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-blue-600">
+                    Visit GXLOCATE.com
+                    <Icon name="lucide:external-link" class="size-3" />
+                  </span>
+                </div>
+              </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="mt-6 grid grid-cols-3 gap-4 border-t border-neutral-100 pt-6">
+              <div class="text-center">
+                <div class="font-display text-2xl font-bold text-neutral-900">282+</div>
+                <div class="text-xs text-neutral-400">Projects Delivered</div>
+              </div>
+              <div class="text-center">
+                <div class="font-display text-2xl font-bold text-neutral-900">15+</div>
+                <div class="text-xs text-neutral-400">Years Experience</div>
+              </div>
+              <div class="text-center">
+                <div class="font-display text-2xl font-bold text-neutral-900">100%</div>
+                <div class="text-xs text-neutral-400">Client Satisfaction</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY CHOOSE CLICKNX ============ -->
+  <section class="bg-neutral-950 py-24 lg:py-32">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-300">
+          <Icon name="lucide:shield-check" class="size-3.5" />
+          Our Commitment
+        </span>
+        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+          Why Businesses Choose CLICKNX
+        </h2>
+        <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-neutral-400">
+          Backed by the GNEXT group's 15+ years of digital experience and 282+ projects delivered, CLICKNX brings a level of expertise and reliability that few performance marketing agencies in the UAE can match.
+        </p>
+      </div>
+
+      <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {[
+          { icon: 'lucide:database', title: 'Data-First Approach', detail: 'Every campaign decision is backed by real-time analytics and attribution modeling. We do not guess, we measure, optimize, and scale based on hard data that proves ROI.' },
+          { icon: 'lucide:eye', title: 'Full Transparency', detail: 'Live dashboards, weekly performance reports, and complete access to every campaign, keyword, and ad account. You own your data and can see exactly where every dirham goes.' },
+          { icon: 'lucide:zap', title: 'Fast Execution', detail: 'Campaigns go live within 48 hours of strategy approval. We have pre-built frameworks for every major industry in the UAE, so we move faster than agencies starting from scratch.' },
+          { icon: 'lucide:scale', title: 'Scalable Frameworks', detail: 'Our proven playbooks have been tested across hundreds of campaigns. Whether you are spending AED 5,000 or AED 100,000 per month, our systems scale efficiently without sacrificing performance.' },
+          { icon: 'lucide:users', title: 'UAE Market Expertise', detail: 'Deep understanding of Arabic and English consumer behavior, cultural nuances, platform usage patterns, and seasonal trends across all seven emirates. We know what works in this market because we live here.' },
+          { icon: 'lucide:target', title: 'Conversion Focused', detail: 'We do not optimize for vanity metrics. Every campaign is built around your actual business goals: leads, sales, appointments, or revenue. If it does not drive results, it does not stay.' },
+        ].map((item, i) => (
+          <div class={`rounded-2xl border border-white/8 bg-white/4 p-8 backdrop-blur-sm transition-all duration-300 hover:bg-white/8 hover:border-white/12 animate-fade-up stagger-${i + 1}`}>
+            <div class="flex size-12 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400 mb-6">
+              <Icon name={item.icon} class="size-6" />
+            </div>
+            <h3 class="font-display text-lg font-semibold text-white">{item.title}</h3>
+            <p class="mt-3 text-sm leading-relaxed text-neutral-400">{item.detail}</p>
+          </div>
+        ))}
+      </div>
+
+      <!-- Authority stats -->
+      <div class="mt-16 grid grid-cols-2 gap-6 lg:grid-cols-4">
+        {[
+          { value: '15+', label: 'Years of Digital Experience' },
+          { value: '282+', label: 'Projects Delivered by GNEXT Group' },
+          { value: '100%', label: 'Client Satisfaction Rate' },
+          { value: '48hr', label: 'Average Campaign Launch Time' },
+        ].map((stat, i) => (
+          <div class={`text-center animate-fade-up stagger-${i + 1}`}>
+            <div class="font-display text-4xl font-bold text-white">{stat.value}</div>
+            <div class="mt-1 text-sm text-neutral-400">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AREAS WE COVER ============ -->
+  <section class="py-24 lg:py-32">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <span class="section-label">
+          <Icon name="lucide:map-pin" class="size-3.5" />
+          Where We Work
+        </span>
+        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+          Areas We Serve
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-neutral-500">
+          Performance marketing services across the UAE. From Abu Dhabi to Ras Al Khaimah, we help businesses in every emirate grow online.
+        </p>
+      </div>
+
+      <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        {serviceAreas.map((area, i) => (
+          <a
+            href={areaUrl(area.slug)}
+            class={`card-hover group rounded-2xl border border-neutral-200 bg-white p-6 transition-all duration-300 animate-fade-up stagger-${i + 1}`}
+          >
+            <div class="flex items-center gap-4">
+              <div class="flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-100">
+                <Icon name="lucide:map-pin" class="size-5" />
+              </div>
+              <div>
+                <span class="font-display text-base font-semibold text-neutral-900 group-hover:text-brand-700 transition-colors">{area.name}</span>
+                <span class="block text-xs text-neutral-400">{area.county}</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900 py-20 lg:py-28">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(124,58,237,0.15),_transparent_70%)]" />
+      <div class="absolute -top-20 -right-20 size-64 rounded-full bg-brand-700/20 blur-3xl" />
+      <div class="absolute -bottom-10 -left-10 size-48 rounded-full bg-brand-600/10 blur-2xl" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">Let Us Work Together</h2>
+        <p class="mt-5 text-lg leading-relaxed text-brand-200/90 max-w-xl mx-auto">
+          Ready to replace guesswork with data? Get a free strategy consultation and see exactly where your growth opportunities are.
+        </p>
+        <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <a
+            href={contactUrl()}
+            class="group inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-brand-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          >
+            Get Your Free Strategy Call
+            <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </a>
+          <a
+            href="https://wa.me/971556115985"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-2.5 rounded-xl border border-white/20 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:bg-white/10"
+          >
+            <svg class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp Us
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

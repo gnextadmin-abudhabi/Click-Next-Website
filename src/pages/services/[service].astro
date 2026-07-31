@@ -1,0 +1,587 @@
+---
+import { Icon } from 'astro-icon/components';
+import { business, yearsInBusiness } from '../../data/business';
+import { serviceTypes, getServiceBySlug } from '../../data/serviceTypes';
+import { serviceAreas, getAreaBySlug } from '../../data/serviceAreas';
+import { serviceUrl, areaUrl, comboUrl, contactUrl } from '../../lib/urls';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getServiceFaqs, getGlobalFaqs } from '../../data/seoContent';
+import { serviceVisuals } from '../../data/serviceVisuals';
+
+import type { ServiceType } from '../../data/serviceTypes';
+
+export function getStaticPaths() {
+  return serviceTypes.map((service) => ({
+    params: { service: service.slug },
+    props: { service },
+  }));
+}
+
+interface Props {
+  service: ServiceType;
+}
+
+const { service } = Astro.props;
+
+const abuDhabi = getAreaBySlug('abu-dhabi')!;
+const serviceFaqs = getServiceFaqs(service.slug);
+const faqs = serviceFaqs.length > 0 ? serviceFaqs : getGlobalFaqs().slice(0, 4);
+const journeyVisuals = serviceVisuals[service.slug] ?? [];
+
+const pageTitle = `${service.name} | ${business.name} Abu Dhabi`;
+const metaDescription = service.description;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: service.name,
+  description: service.description,
+  provider: {
+    '@type': 'ProfessionalService',
+    name: business.name,
+    url: business.siteUrl,
+    email: business.email,
+    address: { '@type': 'PostalAddress', addressLocality: business.address.city, addressCountry: 'AE' },
+  },
+  areaServed: serviceAreas.map((area) => ({ '@type': 'City', name: area.name })),
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: service.name,
+    itemListElement: service.priceRanges.map((pr) => ({
+      '@type': 'Offer',
+      name: pr.label,
+      price: `${pr.min}-${pr.max}`,
+      priceCurrency: 'AED',
+      unitText: pr.unit,
+    })),
+  },
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+  })),
+};
+---
+
+<BaseLayout title={pageTitle} description={metaDescription} schema={schema}>
+  <Breadcrumbs
+    crumbs={[
+      { label: 'Services', href: '/services/' },
+      { label: service.name },
+    ]}
+  />
+
+  <!-- ============ HERO WITH CONTACT FORM ============ -->
+  <section class="relative overflow-hidden bg-neutral-950 py-16 lg:py-24">
+    <!-- Background image -->
+    <div class="absolute inset-0">
+      <img
+        src={service.image}
+        alt={service.imageAlt}
+        class="h-full w-full object-cover opacity-15"
+        width="1024"
+        height="576"
+        loading="eager"
+      />
+    </div>
+    <!-- Gradient overlay -->
+    <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/95 via-neutral-950/80 to-neutral-950/60" />
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+        <!-- Left: H1 + Description + CTAs -->
+        <div>
+          <div class="flex items-center gap-3 text-brand-400 mb-6">
+            <div class="flex size-11 items-center justify-center rounded-xl bg-brand-500/10">
+              <Icon name={`lucide:${service.icon}`} class="size-5" />
+            </div>
+            <span class="text-sm font-semibold uppercase tracking-wider">{service.name}</span>
+          </div>
+
+          <h1 class="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            {service.name} in Abu Dhabi
+          </h1>
+
+          <p class="mt-6 text-lg leading-relaxed text-neutral-300">
+            {service.description}
+          </p>
+
+          <!-- Quick stats -->
+          <div class="mt-8 flex flex-wrap gap-6">
+            <div class="flex items-center gap-2 text-sm text-neutral-400">
+              <Icon name="lucide:crosshair" class="size-4 text-brand-400" />
+              <span>Conversion-focused campaigns</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-neutral-400">
+              <Icon name="lucide:chart-no-axes-combined" class="size-4 text-brand-400" />
+              <span>Transparent performance reporting</span>
+            </div>
+          </div>
+
+          <!-- CTA buttons -->
+          <div class="mt-8 flex flex-wrap gap-4">
+            <a
+              href="https://wa.me/971556115985?text=Hi%20CLICKNX%2C%20I%20need%20help%20with%20{service.name.replace(/ /g, '%20')}."
+              target="_blank"
+              rel="noopener"
+              class="group inline-flex items-center gap-2.5 rounded-xl bg-[#25D366] px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+            >
+              <svg class="size-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Chat on WhatsApp
+            </a>
+            <a
+              href="tel:+971556115985"
+              class="inline-flex items-center gap-2.5 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:bg-white/10"
+            >
+              <Icon name="lucide:phone" class="size-4" />
+              +971 55 611 5985
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: Contact Form -->
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8 backdrop-blur-lg">
+          <h3 class="font-display text-xl font-semibold text-white mb-2">Get a Free Strategy Call</h3>
+          <p class="text-sm text-neutral-400 mb-6">Tell us about your business and goals. We will get back within 24 hours.</p>
+
+          <form action="#" method="POST" class="space-y-4">
+            <div>
+              <label for="hero-name" class="block text-xs font-medium text-neutral-400 mb-1">Full Name</label>
+              <input
+                type="text" id="hero-name" name="name" required
+                placeholder="Your name"
+                class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-neutral-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 focus:outline-none"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="hero-email" class="block text-xs font-medium text-neutral-400 mb-1">Email</label>
+                <input
+                  type="email" id="hero-email" name="email" required
+                  placeholder="you@company.com"
+                  class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-neutral-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label for="hero-phone" class="block text-xs font-medium text-neutral-400 mb-1">Phone</label>
+                <input
+                  type="tel" id="hero-phone" name="phone"
+                  placeholder="+971 50 XXX XXXX"
+                  class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-neutral-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 focus:outline-none"
+                />
+              </div>
+            </div>
+            <div>
+              <label for="hero-message" class="block text-xs font-medium text-neutral-400 mb-1">Your Goals</label>
+              <textarea
+                id="hero-message" name="message" required rows="3"
+                placeholder="What are your marketing goals?"
+                class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-neutral-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 focus:outline-none resize-none"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="gradient-cta group w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5"
+            >
+              Get Free Consultation
+              <Icon name="lucide:arrow-right" class="size-4 transition-transform group-hover:translate-x-1" />
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section class="relative overflow-hidden py-20 lg:py-28">
+    <!-- Decorative gradient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute top-20 -left-40 size-80 rounded-full bg-brand-100/30 blur-[80px]" />
+      <div class="absolute bottom-10 right-1/4 size-64 rounded-full bg-brand-200/20 blur-[60px]" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-12 lg:grid-cols-3 lg:gap-16">
+        <div class="lg:col-span-2 prose-editorial">
+          <h2>What Is {service.name}?</h2>
+          <p>
+            {service.description} For businesses in Abu Dhabi and across the UAE, this means
+            targeted campaigns that reach your ideal customers with precision, every dirham tracked
+            and optimized for maximum return.
+          </p>
+          <p>
+            At CLICKNX, we have been helping UAE businesses grow through data-driven
+            performance marketing since {business.foundedYear}. Our team of certified specialists
+            manages campaigns across all major platforms, delivering measurable results that
+            directly impact your bottom line.
+          </p>
+          <p>
+            Whether you are looking to generate more qualified leads, increase online sales, or
+            improve the efficiency of your existing campaigns, our {service.name.toLowerCase()} service
+            is designed to deliver consistent, scalable growth.
+          </p>
+
+          <h2>Why {service.name} Matters for UAE Businesses</h2>
+          <p>
+            The UAE digital advertising market is growing at over 15% annually, with businesses
+            across every sector competing for visibility online. {service.name} gives you a
+            competitive advantage through:
+          </p>
+          <ul>
+            <li><strong>Precision targeting:</strong> Reach the right audience at the right time with data-driven audience segmentation</li>
+            <li><strong>Measurable ROI:</strong> Every campaign is tracked to the conversion level so you know exactly what each dirham produces</li>
+            <li><strong>Scalable growth:</strong> Start small and scale efficiently as you identify winning strategies and audiences</li>
+            <li><strong>Local expertise:</strong> Deep understanding of UAE consumer behavior and platform usage patterns</li>
+          </ul>
+        </div>
+
+        <!-- Sidebar: Quick Facts -->
+        <div class="lg:col-span-1">
+          <div class="sticky top-24 rounded-2xl border border-neutral-200 bg-white p-8">
+            <h3 class="font-display text-lg font-semibold text-neutral-900 mb-6">Service Details</h3>
+
+            <dl class="space-y-5">
+              <div>
+                <dt class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Pricing</dt>
+                <dd class="mt-2 space-y-2">
+                  {service.priceRanges.map((pr) => (
+                    <div class="flex items-start justify-between text-sm">
+                      <span class="text-neutral-600">{pr.label}</span>
+                      <span class="font-semibold text-neutral-900">AED {pr.min?.toLocaleString()} - {pr.max?.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </dd>
+              </div>
+
+              <div class="border-t border-neutral-100 pt-5">
+                <dt class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Timeline</dt>
+                <dd class="mt-1 text-sm font-semibold text-neutral-900">Campaigns live within 48 hours</dd>
+              </div>
+
+              <div class="border-t border-neutral-100 pt-5">
+                <dt class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Reporting</dt>
+                <dd class="mt-1 text-sm font-semibold text-neutral-900">Weekly reports + live dashboard</dd>
+              </div>
+
+              <div class="border-t border-neutral-100 pt-5">
+                <dt class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Support</dt>
+                <dd class="mt-1 text-sm font-semibold text-neutral-900">Dedicated account manager</dd>
+              </div>
+            </dl>
+
+            <a
+              href={contactUrl()}
+              class="btn-primary mt-6 w-full justify-center"
+            >
+              Get a Free Quote
+              <Icon name="lucide:arrow-right" class="size-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FULL-WIDTH IMAGE BANNER ============ -->
+  <section class="relative overflow-hidden w-full">
+    <div class="relative h-72 sm:h-80 lg:h-96">
+      <img
+        src={service.image}
+        alt={service.imageAlt}
+        class="absolute inset-0 h-full w-full object-cover"
+        width="1920"
+        height="600"
+        loading="lazy"
+      />
+      <!-- Gradient overlay for text readability -->
+      <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/70 via-neutral-950/40 to-transparent" />
+      <!-- Overlay content -->
+      <div class="relative mx-auto flex h-full max-w-7xl items-center px-5 lg:px-8">
+        <div>
+          <h2 class="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+            {service.name}
+          </h2>
+          <p class="mt-2 text-base font-medium text-brand-300">
+            Data-driven campaigns. Measurable growth. Real ROI.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CUSTOMER JOURNEY VISUALS ============ -->
+  {journeyVisuals.length > 0 && (
+    <section class="relative overflow-hidden bg-neutral-950 py-20 lg:py-28">
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(124,58,237,0.16),transparent_45%)]" />
+      <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+        <div class="max-w-2xl">
+          <span class="inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-300">
+            <Icon name="lucide:route" class="size-3.5" />
+            How performance compounds
+          </span>
+          <h2 class="mt-5 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            From campaign activity to business outcomes
+          </h2>
+          <p class="mt-4 text-base leading-relaxed text-neutral-400">
+            Each layer is connected: targeting, creative, conversion experience, measurement, and ongoing optimization.
+          </p>
+        </div>
+
+        <div class="mt-12 grid gap-6 lg:grid-cols-2">
+          {journeyVisuals.map((visual) => (
+            <figure class="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/20">
+              <div class="aspect-[16/9] overflow-hidden border-b border-white/10 bg-black">
+                <img
+                  src={visual.src}
+                  alt={visual.alt}
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                  width="688"
+                  height="384"
+                  loading="lazy"
+                />
+              </div>
+              <figcaption class="p-6 sm:p-7">
+                <h3 class="font-display text-xl font-semibold text-white">{visual.title}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-neutral-400">{visual.description}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ============ PROCESS ============ -->
+  <section class="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
+    <!-- Decorative gradient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -top-40 right-1/4 size-96 rounded-full bg-brand-200/20 blur-[100px]" />
+      <div class="absolute -bottom-20 left-1/4 size-80 rounded-full bg-brand-300/15 blur-[80px]" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+          Our {service.name} Process
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-neutral-500">
+          Every campaign follows our proven {service.process.length}-step process for consistent, measurable results.
+        </p>
+      </div>
+
+      <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        {service.process.map((step, index) => (
+          <div class={`rounded-2xl border border-neutral-200 bg-white p-8 transition-all duration-300 hover:border-brand-200 hover:shadow-lg animate-fade-up stagger-${Math.min(index + 1, 6)}`}>
+            <div class="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-base font-bold text-white shadow-lg shadow-brand-500/20 mb-6">
+              {index + 1}
+            </div>
+            <h3 class="font-display text-lg font-semibold text-neutral-900 mb-3">{step.title}</h3>
+            <p class="text-sm leading-relaxed text-neutral-500">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BENEFITS ============ -->
+  <section class="relative overflow-hidden py-24 lg:py-32">
+    <!-- Decorative gradient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute top-20 -left-40 size-80 rounded-full bg-brand-100/30 blur-[80px]" />
+      <div class="absolute bottom-10 right-1/4 size-64 rounded-full bg-brand-200/20 blur-[60px]" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+          Benefits of Working With CLICKNX
+        </h2>
+      </div>
+
+      <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {[
+          { icon: 'lucide:database', title: 'Data-Driven Strategy', desc: `Every ${service.name.toLowerCase()} campaign is built on real data, not assumptions. We analyze your market, competitors, and audience before spending a single dirham.` },
+          { icon: 'lucide:eye', title: 'Full Transparency', desc: 'Real-time dashboards, weekly reports, and complete access to your campaign data. You always know exactly where your budget is going and what it is producing.' },
+          { icon: 'lucide:zap', title: 'Fast Execution', desc: 'Campaigns go live within 48 hours of strategy approval. We move quickly because speed-to-market matters in performance marketing.' },
+          { icon: 'lucide:target', title: 'Conversion Focused', desc: 'We optimize for the metrics that matter: leads, sales, and revenue. Not vanity metrics like impressions or clicks.' },
+          { icon: 'lucide:users', title: 'UAE Market Expertise', desc: 'Deep understanding of UAE consumer behavior, platform usage patterns, and regional nuances that global agencies often miss.' },
+          { icon: 'lucide:scale', title: 'Scalable Frameworks', desc: 'Our proven playbooks work for startups and enterprises alike. We build systems that grow with your business, not one-off campaigns.' },
+        ].map((item, i) => (
+          <div class={`rounded-2xl border border-neutral-200 bg-white p-8 transition-all duration-300 hover:border-brand-200 hover:shadow-lg animate-fade-up stagger-${i + 1}`}>
+            <div class="flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 mb-5">
+              <Icon name={item.icon} class="size-5" />
+            </div>
+            <h3 class="font-display text-lg font-semibold text-neutral-900 mb-2">{item.title}</h3>
+            <p class="text-sm leading-relaxed text-neutral-500">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CASE STUDIES ============ -->
+  {service.caseStudies.length > 0 && (
+    <section class="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
+      <!-- Decorative gradient blobs -->
+      <div class="pointer-events-none absolute inset-0">
+        <div class="absolute -top-40 left-1/4 size-96 rounded-full bg-brand-200/15 blur-[100px]" />
+        <div class="absolute -bottom-20 right-1/4 size-80 rounded-full bg-brand-300/10 blur-[80px]" />
+      </div>
+      <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+          <span class="section-label">
+            <Icon name="lucide:trophy" class="size-3.5" />
+            Results That Speak
+          </span>
+          <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+            {service.name} Case Studies
+          </h2>
+          <p class="mt-5 text-lg leading-relaxed text-neutral-500">
+            Real results from real clients. See how we have helped businesses like yours achieve measurable growth.
+          </p>
+        </div>
+
+        <div class="mt-16 grid gap-8 lg:grid-cols-3">
+          {service.caseStudies.map((cs, i) => (
+            <div class={`rounded-2xl border border-neutral-200 bg-white overflow-hidden transition-all duration-300 hover:border-brand-200 hover:shadow-xl animate-fade-up stagger-${Math.min(i + 1, 6)}`}>
+              <div class="bg-gradient-to-br from-brand-600 to-brand-800 p-6">
+                <span class="text-xs font-semibold uppercase tracking-wider text-brand-200">{cs.industry}</span>
+                <h3 class="mt-2 font-display text-lg font-semibold text-white">{cs.title}</h3>
+              </div>
+              <div class="p-6">
+                <p class="text-sm font-medium text-neutral-700 mb-1">Challenge:</p>
+                <p class="text-sm text-neutral-500 mb-4">{cs.challenge}</p>
+                <p class="text-sm font-medium text-neutral-700 mb-1">Solution:</p>
+                <p class="text-sm text-neutral-500 mb-5">{cs.solution}</p>
+                <div class="border-t border-neutral-100 pt-4">
+                  <p class="text-sm font-semibold text-neutral-700 mb-3">Results:</p>
+                  <ul class="space-y-2">
+                    {cs.results.map((result) => (
+                      <li class="flex items-start gap-2 text-sm text-neutral-600">
+                        <Icon name="lucide:trending-up" class="size-4 shrink-0 text-emerald-500 mt-0.5" />
+                        {result}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ============ AREAS ============ -->
+  <section class="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
+    <!-- Decorative gradient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute top-10 -right-20 size-72 rounded-full bg-brand-100/25 blur-[70px]" />
+      <div class="absolute bottom-0 left-1/3 size-56 rounded-full bg-brand-200/15 blur-[50px]" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+          {service.name} Across the UAE
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-neutral-500">
+          We deliver {service.name.toLowerCase()} services across all major UAE cities and business districts. Select your area for localized campaign strategies.
+        </p>
+      </div>
+
+      <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {serviceAreas.map((area) => (
+          <a
+            href={comboUrl(area.slug, service.slug)}
+            class="card-hover group rounded-2xl border border-neutral-200 bg-white p-6 transition-all duration-300"
+          >
+            <div class="flex items-center gap-4">
+              <div class="flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-100">
+                <Icon name="lucide:map-pin" class="size-5" />
+              </div>
+              <div>
+                <span class="font-display text-sm font-semibold text-neutral-900 group-hover:text-brand-700 transition-colors">{area.name}</span>
+                <span class="block text-xs text-neutral-400">{area.county}</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="relative overflow-hidden py-24 lg:py-32">
+    <!-- Decorative gradient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute top-20 -left-40 size-80 rounded-full bg-brand-100/30 blur-[80px]" />
+      <div class="absolute bottom-10 right-1/4 size-64 rounded-full bg-brand-200/20 blur-[60px]" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-3xl">
+        <h2 class="font-display text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
+          Frequently Asked Questions
+        </h2>
+        <p class="mt-4 text-lg text-neutral-500">
+          Common questions about {service.name} for UAE businesses.
+        </p>
+
+        <div class="mt-10 space-y-3">
+          {faqs.map((faq) => (
+            <details class="group rounded-2xl border border-neutral-200 bg-white transition-all duration-200 hover:border-brand-200 hover:shadow-sm">
+              <summary class="flex cursor-pointer items-center justify-between gap-4 px-6 py-5 text-sm font-medium text-neutral-800 [&::-webkit-details-marker]:hidden [&::marker]:hidden">
+                <span>{faq.question}</span>
+                <Icon name="lucide:chevron-down" class="size-5 shrink-0 text-neutral-400 transition-transform duration-200 group-open:rotate-180 group-open:text-brand-600" />
+              </summary>
+              <div class="border-t border-neutral-100 px-6 py-5 text-sm leading-relaxed text-neutral-500">
+                {faq.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900 py-20 lg:py-28">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(124,58,237,0.15),_transparent_70%)]" />
+      <div class="absolute -top-20 -right-20 size-64 rounded-full bg-brand-700/20 blur-3xl" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+          Ready to Get Started?
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-brand-200/90 max-w-xl mx-auto">
+          {business.name} has been helping UAE businesses grow through data-driven performance marketing since {business.foundedYear}. Get a free strategy consultation today.
+        </p>
+        <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <a
+            href={contactUrl()}
+            class="group inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-brand-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          >
+            Get a Free Strategy Call
+            <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </a>
+          <a
+            href={`mailto:${business.email}`}
+            class="inline-flex items-center gap-2.5 rounded-xl border border-white/20 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:bg-white/10"
+          >
+            {business.email}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />

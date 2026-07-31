@@ -1,0 +1,243 @@
+---
+import { business, yearsInBusiness } from '../../../data/business';
+import { serviceTypes } from '../../../data/serviceTypes';
+import { serviceAreas, getNearbyAreas } from '../../../data/serviceAreas';
+import type { ServiceType } from '../../../data/serviceTypes';
+import type { ServiceArea } from '../../../data/serviceAreas';
+import { serviceUrl, areaUrl, comboUrl, contactUrl } from '../../../lib/urls';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import SeoTestimonials from '../../../components/SeoTestimonials.astro';
+import { getServiceFaqs, getGlobalFaqs } from '../../../data/seoContent';
+import { Icon } from 'astro-icon/components';
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const area of serviceAreas) {
+    for (const service of serviceTypes) {
+      paths.push({
+        params: { area: area.slug, service: service.slug },
+        props: { area, service },
+      });
+    }
+  }
+  return paths;
+}
+
+interface Props {
+  area: ServiceArea;
+  service: ServiceType;
+}
+
+const { area, service } = Astro.props;
+const years = yearsInBusiness();
+const nearbyAreas = getNearbyAreas(area);
+const nearbyNames = nearbyAreas.map((a) => a.name).join(', ');
+const serviceFaqs = getServiceFaqs(service.slug);
+const faqs = serviceFaqs.length > 0 ? serviceFaqs : getGlobalFaqs().slice(0, 3);
+
+const pageTitle = `${service.name} in ${area.name} | ${business.name}`;
+const pageDescription = `Expert ${service.name.toLowerCase()} services in ${area.name}, ${area.county}. ${business.name} helps local businesses grow with data-driven campaigns that deliver measurable ROI.`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: `${service.name} in ${area.name}`,
+  description: pageDescription,
+  provider: {
+    '@type': 'ProfessionalService',
+    name: business.name,
+    url: business.siteUrl,
+    email: business.email,
+  },
+  areaServed: [
+    { '@type': 'City', name: area.name },
+    { '@type': 'AdministrativeArea', name: area.county },
+  ],
+  offers: {
+    '@type': 'AggregateOffer',
+    lowPrice: service.priceRanges[0]?.min || 0,
+    highPrice: service.priceRanges[service.priceRanges.length - 1]?.max || 0,
+    priceCurrency: 'AED',
+  },
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+  })),
+};
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonicalUrl={`${business.siteUrl}${comboUrl(area.slug, service.slug)}`}
+  schema={schema}
+>
+  <Breadcrumbs
+    crumbs={[
+      { label: 'Services', href: '/services/' },
+      { label: area.name, href: areaUrl(area.slug) },
+      { label: service.name },
+    ]}
+  />
+
+  <article class="mx-auto max-w-7xl px-5 lg:px-8">
+    <!-- ============ HERO ============ -->
+    <header class="pb-10 pt-6 lg:pt-10">
+      <div class="lg:flex lg:items-start lg:gap-10">
+        <div class="lg:flex-1">
+          <div class="flex items-center gap-3 text-brand-600">
+            <Icon name={`lucide:${service.icon}`} class="size-8" />
+            <span class="text-sm font-semibold uppercase tracking-wide">
+              {service.name}
+            </span>
+          </div>
+          <h1 class="mt-3 font-display text-3xl text-brand-950 sm:text-4xl lg:text-5xl">
+            {service.name} in {area.name}
+          </h1>
+          <p class="mt-4 max-w-3xl text-lg leading-relaxed text-stone-600">
+            {pageDescription}
+          </p>
+
+          <!-- Pricing -->
+          <div class="mt-6 flex flex-wrap gap-2">
+            {service.priceRanges.slice(0, 2).map((pr) => (
+              <div class="inline-flex items-center gap-2 rounded-lg bg-brand-50 px-4 py-2 text-sm font-medium text-brand-800 ring-1 ring-brand-200/60">
+                <Icon name="lucide:tag" class="size-4 text-brand-500" />
+                {pr.label}: AED {pr.min?.toLocaleString()} - {pr.max?.toLocaleString()}{pr.unit ? ` ${pr.unit}` : ''}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ DESCRIPTION ============ -->
+    <section class="prose-editorial max-w-3xl pb-12">
+      <h2>{service.name} for {area.name} Businesses</h2>
+      <p>
+        {service.description} For businesses in {area.name}, this means targeted campaigns
+        that reach your ideal customers in {area.county} and beyond, with every dirham tracked
+        and optimized for maximum return.
+      </p>
+      {nearbyAreas.length > 0 && (
+        <p>
+          In addition to {area.name}, our {service.name.toLowerCase()} services cover nearby
+          communities including {nearbyNames}. Wherever your customers are in the UAE, we build
+          campaigns that reach them effectively.
+        </p>
+      )}
+    </section>
+
+    <!-- ============ PROCESS ============ -->
+    <section class="pb-16">
+      <h2 class="font-display text-2xl text-brand-950 sm:text-3xl">
+        Our {service.name} Process
+      </h2>
+      <p class="mt-3 max-w-2xl text-stone-600">
+        Every campaign follows our proven process for consistent, measurable results.
+      </p>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        {service.process.map((step, index) => (
+          <div class="rounded-xl border border-stone-200 bg-white p-6 transition-all duration-300 hover:border-brand-200 hover:shadow-lg">
+            <div class="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white shadow-md">
+              {index + 1}
+            </div>
+            <h3 class="mt-4 font-semibold text-brand-950">{step.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-stone-600">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ============ WHY CHOOSE ============ -->
+    <section class="pb-16">
+      <h2 class="font-display text-2xl text-brand-950 sm:text-3xl">
+        Why Choose CLICKNX for {service.name} in {area.name}?
+      </h2>
+
+      <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { icon: 'lucide:database', title: 'Data-Driven', desc: 'Every campaign decision backed by analytics, not guesswork.' },
+          { icon: 'lucide:eye', title: 'Full Transparency', desc: 'Real-time dashboards and weekly reports so you always know performance.' },
+          { icon: 'lucide:zap', title: 'Fast Execution', desc: 'Campaigns live within 48 hours of strategy approval.' },
+          { icon: 'lucide:target', title: 'Conversion Focused', desc: 'Optimized for leads and revenue, not just clicks.' },
+        ].map((item, i) => (
+          <div class="rounded-xl border border-stone-200 bg-white p-6 text-center transition-all duration-300 hover:border-brand-200 hover:shadow-lg">
+            <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+              <Icon name={item.icon} class="size-6" />
+            </div>
+            <h3 class="mt-4 font-semibold text-brand-950">{item.title}</h3>
+            <p class="mt-2 text-sm text-stone-600">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="pb-16">
+      <div class="rounded-2xl bg-gradient-to-br from-brand-900 to-brand-800 p-8 text-center lg:p-12 relative overflow-hidden">
+        <div class="pointer-events-none absolute inset-0">
+          <div class="absolute -top-20 -right-20 size-40 rounded-full bg-brand-700/20 blur-2xl" />
+        </div>
+        <div class="relative">
+          <h2 class="font-display text-2xl text-white sm:text-3xl">
+            Ready to Grow with {service.name} in {area.name}?
+          </h2>
+          <p class="mx-auto mt-4 max-w-xl text-brand-200">
+            Get a free strategy consultation. We will analyze your current marketing and show you exactly where the growth opportunities are.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href={contactUrl()}
+              class="group inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-brand-900 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            >
+              Get a Free Strategy Call
+              <Icon name="lucide:arrow-right" class="size-4 transition-transform group-hover:translate-x-1" />
+            </a>
+            <a
+              href={`mailto:${business.email}`}
+              class="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:bg-white/10"
+            >
+              {business.email}
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TESTIMONIALS ============ -->
+    <SeoTestimonials area={area} service={service} />
+
+    <!-- ============ FAQ ============ -->
+    <section class="py-16">
+      <h2 class="font-display text-2xl text-brand-950 sm:text-3xl">
+        FAQs about {service.name} in {area.name}
+      </h2>
+      <div class="mt-8 space-y-3 max-w-3xl">
+        {faqs.map((faq) => (
+          <details class="group rounded-lg border border-stone-200 bg-white transition-all duration-200 hover:border-brand-300 hover:shadow-sm">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 text-sm font-medium text-stone-800 [&::-webkit-details-marker]:hidden [&::marker]:hidden">
+              <span>{faq.question}</span>
+              <Icon name="lucide:chevron-down" class="size-5 shrink-0 text-stone-400 transition-transform duration-200 group-open:rotate-180 group-open:text-brand-600" />
+            </summary>
+            <div class="border-t border-stone-100 px-5 py-4 text-sm leading-relaxed text-stone-600">
+              {faq.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+  </article>
+</BaseLayout>
+
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />

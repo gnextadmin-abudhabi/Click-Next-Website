@@ -1,0 +1,145 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { Icon } from 'astro-icon/components';
+import { business } from '../../data/business';
+import { serviceTypes } from '../../data/serviceTypes';
+import { serviceUrl, contactUrl } from '../../lib/urls';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `Services | ${business.name}`,
+  description: `Complete range of performance marketing services from ${business.name}: Google Ads, Meta Ads, CRO, analytics, social media, TikTok, LinkedIn, programmatic advertising, and landing page design.`,
+  url: `${business.siteUrl}/services/`,
+};
+---
+
+<BaseLayout
+  title={`Performance Marketing Services | ${business.name} Abu Dhabi`}
+  description={`${business.name} offers a full range of performance marketing services across the UAE: Google Ads, Meta Ads, CRO, analytics, social media, TikTok, LinkedIn, programmatic advertising, and landing page design.`}
+  schema={schema}
+>
+  <Breadcrumbs crumbs={[{ label: 'Services' }]} />
+
+  <!-- ============ HEADER ============ -->
+  <section class="relative overflow-hidden bg-neutral-950 py-20 lg:py-28">
+    <div class="absolute inset-0">
+      <img
+        src="/images/performance/services-ecosystem.webp"
+        alt="Illustrated paid media ecosystem connecting advertising channels, creative, landing pages, analytics, and conversion optimization"
+        class="h-full w-full object-cover opacity-45"
+        width="1200"
+        height="675"
+        loading="eager"
+      />
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/95 via-neutral-950/80 to-neutral-950/60" />
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center">
+        <span class="section-label bg-brand-500/10 border-brand-500/20 text-brand-300">
+          <Icon name="lucide:target" class="size-3.5" />
+          Our Services
+        </span>
+        <h1 class="mt-6 font-display text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl">
+          Services That Drive Revenue
+        </h1>
+        <p class="mt-6 text-lg leading-relaxed text-neutral-300">
+          From paid search to conversion optimization, every service CLICKNX delivers is designed to produce measurable business results. No vanity metrics, just growth.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICES GRID ============ -->
+  <section class="pb-20 lg:pb-28">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {serviceTypes.map((service, i) => (
+          <a
+            href={serviceUrl(service.slug)}
+            class={`card-hover group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white transition-all duration-300 animate-fade-up stagger-${Math.min(i + 1, 6)}`}
+          >
+            <div class="relative aspect-[16/8] overflow-hidden bg-neutral-950">
+              <img src={service.image} alt={service.imageAlt} class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" width="688" height="384" loading="lazy" />
+              <div class="absolute inset-0 bg-gradient-to-t from-neutral-950/30 to-transparent" />
+            </div>
+            <div class="p-7">
+              <div class="flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon name={`lucide:${service.icon}`} class="size-5" /></div>
+              <h2 class="mt-5 font-display text-xl font-semibold tracking-tight text-neutral-900 group-hover:text-brand-700 transition-colors">{service.name}</h2>
+              <p class="mt-3 text-sm leading-relaxed text-neutral-500 line-clamp-3">{service.description}</p>
+              <div class="mt-6 flex items-center justify-between">
+                <span class="text-sm font-semibold text-brand-600">From AED {service.priceRanges[0]?.min?.toLocaleString()}</span>
+                <span class="inline-flex items-center gap-1 text-sm font-semibold text-brand-600">Explore <Icon name="lucide:arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1.5" /></span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROCESS SECTION ============ -->
+  <section class="bg-neutral-50 py-24 lg:py-32">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+          How We Work Together
+        </h2>
+        <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-neutral-500">
+          Every engagement follows our proven four-step process designed to maximize results and minimize risk.
+        </p>
+      </div>
+
+      <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { step: '01', icon: 'lucide:search', title: 'Discovery', desc: 'We audit your current marketing, analyze competitors, and identify opportunities for growth.' },
+          { step: '02', icon: 'lucide:compass', title: 'Strategy', desc: 'Custom media plan with channel selection, budget allocation, and clear KPI targets.' },
+          { step: '03', icon: 'lucide:rocket', title: 'Launch', desc: 'Campaigns go live within 48 hours with full tracking infrastructure and daily optimization.' },
+          { step: '04', icon: 'lucide:trending-up', title: 'Scale', desc: 'Weekly reporting, automated dashboards, and data-driven scaling of winning campaigns.' },
+        ].map((item, i) => (
+          <div class={`relative animate-fade-up stagger-${i + 1}`}>
+            <div class="rounded-2xl border border-neutral-200 bg-white p-8 transition-all duration-300 hover:border-brand-200 hover:shadow-lg">
+              <div class="font-display text-5xl font-bold text-brand-100 mb-5">{item.step}</div>
+              <div class="flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 mb-5">
+                <Icon name={item.icon} class="size-5" />
+              </div>
+              <h3 class="font-display text-lg font-semibold text-neutral-900 mb-2">{item.title}</h3>
+              <p class="text-sm text-neutral-500">{item.desc}</p>
+            </div>
+            {i < 3 && (
+              <div class="hidden lg:block absolute top-1/2 -right-3 w-6 text-neutral-200">
+                <Icon name="lucide:chevron-right" class="size-5" />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900 py-20 lg:py-28">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -top-20 -right-20 size-64 rounded-full bg-brand-700/20 blur-3xl" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">Not Sure Where to Start?</h2>
+        <p class="mt-5 text-lg leading-relaxed text-brand-200/90 max-w-xl mx-auto">
+          Book a free strategy call. We will analyze your current marketing and recommend the right services for your goals and budget.
+        </p>
+        <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <a
+            href={contactUrl()}
+            class="group inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-brand-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          >
+            Get a Free Consultation
+            <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

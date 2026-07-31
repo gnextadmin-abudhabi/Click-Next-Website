@@ -1,0 +1,630 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Icon } from 'astro-icon/components';
+import { business } from '../data/business';
+import { serviceTypes, getFeaturedServices } from '../data/serviceTypes';
+import { serviceAreas, getFeaturedAreas } from '../data/serviceAreas';
+import { serviceUrl, areaUrl, contactUrl } from '../lib/urls';
+import { reviews, getAverageRating } from '../data/seoContent';
+
+const avgRating = getAverageRating();
+const featuredServices = getFeaturedServices();
+const featuredAreas = getFeaturedAreas();
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${business.siteUrl}/#website`,
+      url: business.siteUrl,
+      name: business.name,
+      description: business.description,
+      publisher: { '@id': `${business.siteUrl}/#business` },
+    },
+    {
+      '@type': 'ProfessionalService',
+      '@id': `${business.siteUrl}/#business`,
+      name: business.name,
+      url: business.siteUrl,
+      email: business.email,
+      description: business.description,
+      foundingDate: `${business.foundedYear}`,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: business.address.city,
+        addressRegion: business.address.state,
+        addressCountry: 'AE',
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: business.coordinates.lat,
+        longitude: business.coordinates.lng,
+      },
+      openingHoursSpecification: business.hours.map((h) => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: h.days.includes('Monday') ? ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] : h.days === 'Saturday' ? 'Saturday' : 'Sunday',
+        opens: h.hours === 'Closed' ? '00:00' : '09:00',
+        closes: h.hours === 'Closed' ? '00:00' : '18:00',
+      })),
+      areaServed: serviceAreas.map((area) => ({
+        '@type': 'City',
+        name: area.name,
+        containedInPlace: {
+          '@type': 'AdministrativeArea',
+          name: area.county,
+        },
+      })),
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Performance Marketing Services',
+        itemListElement: serviceTypes.map((service) => ({
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: service.name,
+            description: service.description,
+          },
+        })),
+      },
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${business.siteUrl}/#webpage`,
+      url: business.siteUrl,
+      name: `${business.name} | Performance Marketing Agency Abu Dhabi`,
+      isPartOf: { '@id': `${business.siteUrl}/#website` },
+      about: { '@id': `${business.siteUrl}/#business` },
+      description: business.description,
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={`${business.name} | Performance Marketing Agency Abu Dhabi`}
+  description={business.description}
+  schema={schema}
+>
+  <!-- ============ HERO ============ -->
+  <section class="relative overflow-hidden bg-neutral-950">
+    <!-- Background image -->
+    <div class="absolute inset-0">
+      <img
+        src="/images/performance/home-hero.webp"
+        alt="Illustrated performance marketing engine connecting paid media channels, campaign assets, conversion tracking, and business growth"
+        class="h-full w-full object-cover opacity-55"
+        width="1440"
+        height="810"
+        loading="eager"
+      />
+    </div>
+    <!-- Background gradient -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -top-40 -right-40 size-[600px] rounded-full bg-brand-600/15 blur-[120px]" />
+      <div class="absolute -bottom-20 left-1/4 size-[400px] rounded-full bg-brand-700/10 blur-[100px]" />
+      <div class="absolute top-1/3 right-1/3 size-[200px] rounded-full bg-brand-500/5 blur-3xl" />
+    </div>
+    <!-- Grid pattern -->
+    <div class="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/75 to-neutral-950/20" />
+
+    <div class="relative mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-40">
+      <div class="max-w-3xl text-left">
+        <!-- Badge -->
+        <div class="mb-8 inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/5 px-4 py-1.5 backdrop-blur-sm">
+          <span class="relative flex size-2">
+            <span class="absolute inline-flex size-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
+            <span class="relative inline-flex size-2 rounded-full bg-brand-400"></span>
+          </span>
+          <span class="text-xs font-semibold uppercase tracking-wider text-brand-300">
+            Abu Dhabi's Performance Marketing Agency
+          </span>
+        </div>
+
+        <h1 class="font-display text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+          Turn Ad Spend Into
+          <span class="block bg-gradient-to-r from-brand-300 via-brand-400 to-brand-500 bg-clip-text text-transparent">Measurable Revenue</span>
+        </h1>
+
+        <p class="mt-7 max-w-2xl text-lg leading-relaxed text-neutral-300">
+          Performance marketing for UAE businesses—Google Ads, Meta campaigns, conversion-focused landing pages, and tracking that connects every click to a business outcome.
+        </p>
+
+        <div class="mt-6 flex flex-wrap gap-2" aria-label="Core performance marketing capabilities">
+          {['Google Ads', 'Meta Ads', 'Landing Pages', 'CRO', 'Analytics'].map((channel) => (
+            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-neutral-300 backdrop-blur-sm">{channel}</span>
+          ))}
+        </div>
+
+        <div class="mt-10 flex flex-col items-start gap-4 sm:flex-row">
+          <a
+            href={contactUrl()}
+            class="group inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-neutral-900 shadow-xl shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          >
+            Get a Free Paid Media Audit
+            <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </a>
+          <a
+            href="/services/"
+            class="inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:bg-white/10 hover:border-white/20"
+          >
+            View Our Services
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom fade -->
+    <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
+  </section>
+
+  <!-- ============ STATS BAR ============ -->
+  <section class="relative -mt-16 z-10 mx-auto max-w-5xl px-5 lg:px-8">
+    <div class="rounded-2xl border border-neutral-200/80 bg-white/80 backdrop-blur-xl p-6 shadow-xl shadow-neutral-900/5 sm:grid sm:grid-cols-4 sm:gap-6 relative overflow-hidden">
+      <!-- Subtle gradient accent -->
+      <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/60 to-transparent" />
+      <div class="absolute inset-0 bg-gradient-to-br from-brand-50/30 via-transparent to-brand-100/20 pointer-events-none" />
+      {[
+        { icon: 'lucide:target', value: `${serviceTypes.length}`, label: 'Specialist Services' },
+        { icon: 'lucide:map-pin', value: '7', label: 'Emirates Covered' },
+        { icon: 'lucide:mouse-pointer-click', value: 'Google + Meta', label: 'Core Paid Channels' },
+        { icon: 'lucide:route', value: 'Full-Funnel', label: 'Measurement Approach' },
+      ].map((stat, i) => (
+        <div class={`flex items-center gap-4 py-4 sm:py-0 ${i > 0 ? 'sm:border-l sm:border-neutral-100 sm:pl-6' : ''} animate-fade-up stagger-${i + 1}`}>
+          <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+            <Icon name={stat.icon} class="size-5" />
+          </div>
+          <div>
+            <div class="text-xl font-bold text-neutral-900 font-display tracking-tight">{stat.value}</div>
+            <div class="text-sm text-neutral-500">{stat.label}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============ SERVICES GRID ============ -->
+  <section class="relative overflow-hidden py-24 lg:py-32">
+    <!-- Decorative gradient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute top-20 -left-40 size-80 rounded-full bg-brand-100/30 blur-[80px]" />
+      <div class="absolute bottom-10 right-1/4 size-64 rounded-full bg-brand-200/20 blur-[60px]" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <span class="section-label">
+          <Icon name="lucide:target" class="size-3.5" />
+          What We Do
+        </span>
+        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+          Services That Drive Revenue
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-neutral-500">
+          From paid search to conversion optimization, every service is designed to produce measurable business results. No vanity metrics, just growth.
+        </p>
+      </div>
+
+      <div class="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {serviceTypes.map((service, i) => (
+          <a
+            href={serviceUrl(service.slug)}
+            class={`card-hover group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white animate-fade-up stagger-${Math.min(i + 1, 6)} hover:border-brand-200`}
+          >
+            <div class="relative aspect-[16/7] overflow-hidden bg-neutral-950">
+              <img src={service.image} alt={service.imageAlt} class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" width="688" height="384" loading="lazy" />
+              <div class="absolute inset-0 bg-gradient-to-t from-neutral-950/25 to-transparent" />
+            </div>
+            <div class="p-7">
+              <div class="flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon name={`lucide:${service.icon}`} class="size-5" /></div>
+              <h3 class="mt-5 font-display text-xl font-semibold tracking-tight text-neutral-900 group-hover:text-brand-700 transition-colors">{service.name}</h3>
+              <p class="mt-3 text-sm leading-relaxed text-neutral-500 line-clamp-3">{service.description}</p>
+              <div class="mt-6 flex items-center gap-2 text-sm font-semibold text-brand-600">Explore service <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1.5" /></div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW WE WORK ============ -->
+  <section class="bg-neutral-950 py-24 lg:py-32" id="how-we-work">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-300">
+          <Icon name="lucide:settings" class="size-3.5" />
+          Our Process
+        </span>
+        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+          How We Drive Results
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-neutral-400">
+          From strategy to scale, our proven process ensures every campaign is built for maximum impact and measurable ROI.
+        </p>
+      </div>
+
+      <!-- Interactive steps -->
+      <div class="mt-16 lg:flex lg:gap-10">
+        <!-- Step selector -->
+        <div class="flex gap-3 overflow-x-auto pb-4 lg:w-80 lg:shrink-0 lg:flex-col lg:gap-2 lg:overflow-visible lg:pb-0">
+          {[
+            {
+              step: 1,
+              title: 'Discovery & Audit',
+              icon: 'lucide:search',
+              summary: 'Deep dive into your business, competitors, and current marketing.',
+              detail: 'We analyze your existing campaigns, website performance, target audience, and competitive landscape. This discovery phase uncovers opportunities and sets the foundation for a data-driven strategy tailored to your goals.',
+            },
+            {
+              step: 2,
+              title: 'Strategy & Planning',
+              icon: 'lucide:compass',
+              summary: 'Custom roadmap with channel selection and budget allocation.',
+              detail: 'Based on our findings, we build a comprehensive media plan: which platforms to use, how to allocate your budget, what audiences to target, and what KPIs to track. Every decision is backed by data, not guesswork.',
+            },
+            {
+              step: 3,
+              title: 'Launch & Optimize',
+              icon: 'lucide:rocket',
+              summary: 'Campaign deployment with daily monitoring and adjustments.',
+              detail: 'We launch your campaigns with full tracking infrastructure. Daily bid management, creative testing, audience refinement, and negative keyword management ensure your budget is always working as hard as possible.',
+            },
+            {
+              step: 4,
+              title: 'Scale & Report',
+              icon: 'lucide:trending-up',
+              summary: 'Transparent reporting with data-driven growth strategies.',
+              detail: 'Weekly performance reports, automated dashboards, and strategic reviews keep you informed at every stage. We identify winning patterns and scale what works while continuously testing new opportunities for growth.',
+            },
+          ].map((item, i) => (
+            <button
+              type="button"
+              class={`hww-tab group flex w-64 shrink-0 items-start gap-4 rounded-xl px-5 py-4 text-left transition-all duration-300 lg:w-full ${i === 0 ? 'bg-white/8 ring-1 ring-white/12' : 'hover:bg-white/4'}`}
+              data-step={item.step}
+              data-title={item.title}
+              data-detail={item.detail}
+            >
+              <div class={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-all duration-300 ${i === 0 ? 'bg-white text-brand-900 shadow-lg' : 'bg-white/8 text-neutral-400 group-hover:bg-white/12'}`}>
+                <Icon name={item.icon} class="size-5" />
+              </div>
+              <div>
+                <span class={`text-xs font-semibold ${i === 0 ? 'text-brand-300' : 'text-neutral-500'}`}>Step {item.step}</span>
+                <h3 class={`mt-0.5 text-sm font-semibold ${i === 0 ? 'text-white' : 'text-neutral-300'}`}>
+                  {item.title}
+                </h3>
+                <p class={`mt-1 text-xs leading-relaxed ${i === 0 ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                  {item.summary}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <!-- Content panel -->
+        <div class="mt-8 flex-1 lg:mt-0">
+          <div class="relative overflow-hidden rounded-2xl border border-white/8 bg-white/4 p-8 backdrop-blur-sm">
+            <div class="flex items-center gap-4 mb-5">
+              <span class="flex size-12 items-center justify-center rounded-xl bg-white text-lg font-bold text-brand-900 shadow-lg" id="hww-step-num">1</span>
+              <h3 class="font-display text-2xl font-semibold text-white" id="hww-title">Discovery & Audit</h3>
+            </div>
+            <p class="text-base leading-relaxed text-neutral-300" id="hww-detail">
+              We analyze your existing campaigns, website performance, target audience, and competitive landscape. This discovery phase uncovers opportunities and sets the foundation for a data-driven strategy tailored to your goals.
+            </p>
+          </div>
+
+          <!-- Progress dots -->
+          <div class="mt-6 flex items-center justify-center gap-2 lg:justify-start">
+            {[1, 2, 3, 4].map((n) => (
+              <button
+                type="button"
+                class={`hww-dot h-2 rounded-full transition-all duration-300 ${n === 1 ? 'bg-white w-8' : 'bg-neutral-700 hover:bg-neutral-600 w-2'}`}
+                data-dot={n}
+                aria-label={`Go to step ${n}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.hww-tab');
+    const dots = document.querySelectorAll<HTMLButtonElement>('.hww-dot');
+    const stepNum = document.getElementById('hww-step-num');
+    const title = document.getElementById('hww-title');
+    const detail = document.getElementById('hww-detail');
+
+    function activateStep(step: number) {
+      const tab = Array.from(tabs).find(t => Number(t.dataset.step) === step);
+      if (!tab || !stepNum || !title || !detail) return;
+
+      tabs.forEach(t => {
+        const isActive = t === tab;
+        t.classList.toggle('bg-white/8', isActive);
+        t.classList.toggle('ring-1', isActive);
+        t.classList.toggle('ring-white/12', isActive);
+        t.classList.toggle('hover:bg-white/4', !isActive);
+
+        const icon = t.querySelector('div:first-child') as HTMLElement;
+        if (icon) {
+          icon.classList.toggle('bg-white', isActive);
+          icon.classList.toggle('text-brand-900', isActive);
+          icon.classList.toggle('shadow-lg', isActive);
+          icon.classList.toggle('bg-white/8', !isActive);
+          icon.classList.toggle('text-neutral-400', !isActive);
+          icon.classList.toggle('group-hover:bg-white/12', !isActive);
+        }
+
+        const stepLabel = t.querySelector('span:first-of-type') as HTMLElement;
+        if (stepLabel) {
+          stepLabel.classList.toggle('text-brand-300', isActive);
+          stepLabel.classList.toggle('text-neutral-500', !isActive);
+        }
+
+        const h3 = t.querySelector('h3') as HTMLElement;
+        if (h3) {
+          h3.classList.toggle('text-white', isActive);
+          h3.classList.toggle('text-neutral-300', !isActive);
+        }
+
+        const p = t.querySelector('p') as HTMLElement;
+        if (p) {
+          p.classList.toggle('text-neutral-300', isActive);
+          p.classList.toggle('text-neutral-500', !isActive);
+        }
+      });
+
+      dots.forEach(d => {
+        const isActive = Number(d.dataset.dot) === step;
+        d.classList.toggle('bg-white', isActive);
+        d.classList.toggle('w-8', isActive);
+        d.classList.toggle('w-2', !isActive);
+        d.classList.toggle('bg-neutral-700', !isActive);
+      });
+
+      stepNum.textContent = String(step);
+      title.textContent = tab.dataset.title || '';
+      detail.textContent = tab.dataset.detail || '';
+    }
+
+    tabs.forEach(tab => tab.addEventListener('click', () => activateStep(Number(tab.dataset.step))));
+    dots.forEach(dot => dot.addEventListener('click', () => activateStep(Number(dot.dataset.dot))));
+
+    let currentStep = 1;
+    let autoTimer = setInterval(() => {
+      currentStep = currentStep >= 4 ? 1 : currentStep + 1;
+      activateStep(currentStep);
+    }, 6000);
+
+    const section = document.getElementById('how-we-work');
+    section?.addEventListener('click', () => {
+      clearInterval(autoTimer);
+      const clickedTab = document.querySelector('.hww-tab.bg-white\\/8');
+      if (clickedTab) currentStep = Number((clickedTab as HTMLElement).dataset.step);
+      autoTimer = setInterval(() => {
+        currentStep = currentStep >= 4 ? 1 : currentStep + 1;
+        activateStep(currentStep);
+      }, 15000);
+    });
+  </script>
+
+  <!-- ============ ILLUSTRATION BANNER WITH GRADIENT ============ -->
+  <section class="relative overflow-hidden w-full">
+    <!-- Top gradient fade -->
+    <div class="absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-white to-transparent" />
+    <!-- Bottom gradient fade -->
+    <div class="absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-neutral-950 to-transparent" />
+    
+    <div class="relative h-72 sm:h-80 lg:h-96 bg-neutral-950">
+      <img
+        src="/images/performance/home-attribution.webp"
+        alt="Illustrated attribution path connecting digital ads, landing pages, conversion events, qualified leads, and revenue"
+        class="absolute inset-0 h-full w-full object-cover opacity-60"
+        width="1920"
+        height="600"
+        loading="lazy"
+      />
+      <!-- Violet gradient overlay -->
+      <div class="absolute inset-0 bg-gradient-to-r from-brand-950/90 via-brand-900/50 to-brand-950/80" />
+      <!-- Decorative accent lines -->
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(124,58,237,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(124,58,237,0.08)_1px,transparent_1px)] bg-[size:64px_64px]" />
+      
+      <!-- Overlay content -->
+      <div class="relative mx-auto flex h-full max-w-7xl items-center justify-between px-5 lg:px-8">
+        <div class="max-w-lg">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-200 ring-1 ring-white/20 backdrop-blur-sm">
+            <Icon name="lucide:bar-chart-3" class="size-3.5" />
+            Real-Time Analytics
+          </span>
+          <h2 class="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            Every Campaign. Every Click.<br />Every Dirham Tracked.
+          </h2>
+          <p class="mt-3 text-base leading-relaxed text-brand-200/80">
+            Our proprietary dashboards give you complete visibility into campaign performance, audience behavior, and conversion attribution across all platforms.
+          </p>
+        </div>
+        <!-- Stats on right -->
+        <div class="hidden lg:grid grid-cols-2 gap-6">
+          {[
+            { value: '24/7', label: 'Live Monitoring' },
+            { value: '50+', label: 'KPIs Tracked' },
+            { value: '48hr', label: 'Avg. Launch Time' },
+            { value: '99.9%', label: 'Uptime' },
+          ].map((stat, i) => (
+            <div class="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm text-center">
+              <div class="font-display text-2xl font-bold text-white">{stat.value}</div>
+              <div class="mt-1 text-xs text-brand-300">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REVIEWS STRIP ============ -->
+  <section class="border-y border-neutral-200/60 bg-neutral-50 py-20 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-display text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
+            What Our Clients Say
+          </h2>
+          <div class="mt-3 flex items-center gap-2">
+            <div class="flex items-center gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Icon name="lucide:star" class="size-5 fill-amber-400 text-amber-400" />
+              ))}
+            </div>
+            <span class="text-sm font-medium text-neutral-500">
+              {avgRating} average from {reviews.length} reviews
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 flex gap-5 overflow-x-auto px-5 pb-4 lg:px-8 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div class="mx-auto flex max-w-7xl gap-5">
+        {reviews.map((review) => (
+          <div class="w-80 shrink-0 rounded-2xl border border-neutral-200 bg-white p-7 transition-all duration-300 hover:border-brand-200 hover:shadow-lg hover:shadow-brand-100/50 hover:-translate-y-1">
+            <div class="flex items-center gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Icon
+                  name="lucide:star"
+                  class={`size-4 ${i < Math.floor(review.rating) ? 'fill-amber-400 text-amber-400' : 'text-neutral-200'}`}
+                />
+              ))}
+            </div>
+            <p class="mt-4 text-sm leading-relaxed text-neutral-600 line-clamp-4">
+              "{review.text}"
+            </p>
+            <div class="mt-5 flex items-center gap-3">
+              <div class="flex size-10 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-700">
+                {review.name.charAt(0)}
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-neutral-800">{review.name}</p>
+                <p class="text-xs text-neutral-400">{review.source}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AREAS SECTION ============ -->
+  <section class="relative overflow-hidden py-24 lg:py-32">
+    <!-- Decorative gradient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute top-10 -right-20 size-72 rounded-full bg-brand-100/25 blur-[70px]" />
+      <div class="absolute bottom-0 left-1/3 size-56 rounded-full bg-brand-200/15 blur-[50px]" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <span class="section-label">
+          <Icon name="lucide:map-pin" class="size-3.5" />
+          UAE Coverage
+        </span>
+        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+          Areas We Serve
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-neutral-500">
+          Performance marketing services across the UAE, from Abu Dhabi to Ras Al Khaimah. Local expertise, global standards.
+        </p>
+      </div>
+
+      <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        {serviceAreas.map((area, i) => (
+          <a
+            href={areaUrl(area.slug)}
+            class={`card-hover group rounded-2xl border border-neutral-200 bg-white p-6 transition-all duration-300 animate-fade-up stagger-${Math.min(i + 1, 6)}`}
+          >
+            <div class="flex items-center gap-4">
+              <div class="flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-100">
+                <Icon name="lucide:map-pin" class="size-5" />
+              </div>
+              <div>
+                <h3 class="font-display text-base font-semibold text-neutral-900 group-hover:text-brand-700 transition-colors">{area.name}</h3>
+                <p class="text-xs text-neutral-400">{area.county}</p>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY CHOOSE CLICKNX ============ -->
+  <section class="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
+    <!-- Decorative gradient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -top-40 right-1/4 size-96 rounded-full bg-brand-200/20 blur-[100px]" />
+      <div class="absolute -bottom-20 left-1/4 size-80 rounded-full bg-brand-300/15 blur-[80px]" />
+    </div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <span class="section-label">
+            <Icon name="lucide:shield-check" class="size-3.5" />
+            Why CLICKNX
+          </span>
+          <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900">
+            Built for Results,<br />Not Promises
+          </h2>
+          <p class="mt-5 text-lg leading-relaxed text-neutral-500">
+            We do not sell brand awareness or vanity metrics. Every campaign we manage is tracked to the conversion level, every recommendation is backed by data, and every dirham of your budget is optimized for maximum return.
+          </p>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-5">
+          {[
+            { icon: 'lucide:database', title: 'Data-Driven Decisions', desc: 'Every strategy is backed by analytics, not intuition.' },
+            { icon: 'lucide:eye', title: 'Full Transparency', desc: 'Real-time dashboards, weekly reports, no hidden fees.' },
+            { icon: 'lucide:zap', title: 'Fast Execution', desc: 'Campaigns live within 48 hours of strategy approval.' },
+            { icon: 'lucide:scale', title: 'Scalable Growth', desc: 'Proven frameworks that grow with your business.' },
+          ].map((item, i) => (
+            <div class={`rounded-2xl border border-neutral-200 bg-white p-7 transition-all duration-300 hover:border-brand-200 hover:shadow-lg hover:shadow-brand-100/30 animate-fade-up stagger-${i + 1}`}>
+              <div class="flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 mb-5">
+                <Icon name={item.icon} class="size-5" />
+              </div>
+              <h3 class="font-display text-base font-semibold text-neutral-900 mb-1.5">{item.title}</h3>
+              <p class="text-sm text-neutral-500">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA BANNER ============ -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -top-20 -right-20 size-64 rounded-full bg-brand-700/20 blur-3xl" />
+      <div class="absolute -bottom-10 -left-10 size-48 rounded-full bg-brand-600/10 blur-2xl" />
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+      <div class="mx-auto max-w-3xl text-center">
+        <h2 class="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">Ready to Scale?</h2>
+        <p class="mt-5 text-lg leading-relaxed text-brand-200/90 max-w-xl mx-auto">
+          Get a free strategy consultation. We will analyze your current marketing and show you exactly where the growth opportunities are.
+        </p>
+        <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <a
+            href={contactUrl()}
+            class="group inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-brand-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          >
+            Get Your Free Audit
+            <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </a>
+          <a
+            href="/services/"
+            class="inline-flex items-center gap-2.5 rounded-xl border border-white/20 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:bg-white/10"
+          >
+            Explore Services
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

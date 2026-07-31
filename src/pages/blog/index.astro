@@ -1,0 +1,119 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { blogUrl } from '../../lib/urls';
+import { business } from '../../data/business';
+import { Icon } from 'astro-icon/components';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => new Date(b.data.publishDate).getTime() - new Date(a.data.publishDate).getTime()
+);
+
+const categoryColors: Record<string, { bg: string; text: string }> = {
+  'paid-ads': { bg: 'bg-brand-100', text: 'text-brand-700' },
+  'cro': { bg: 'bg-green-100', text: 'text-green-700' },
+  'analytics': { bg: 'bg-blue-100', text: 'text-blue-700' },
+  'social-media': { bg: 'bg-pink-100', text: 'text-pink-700' },
+  'strategy': { bg: 'bg-amber-100', text: 'text-amber-700' },
+  'news': { bg: 'bg-stone-200', text: 'text-stone-700' },
+};
+
+function formatDate(iso: string): string {
+  const date = new Date(iso + 'T00:00:00');
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<BaseLayout
+  title={`Marketing Insights & Tips | ${business.name}`}
+  description="Performance marketing tips, guides, and insights from CLICKNX. Data-driven strategies for UAE businesses looking to grow with Google Ads, Meta Ads, CRO, and more."
+>
+  <Breadcrumbs crumbs={[{ label: 'Insights' }]} />
+
+  <!-- ============ HERO ============ -->
+  <section class="relative overflow-hidden bg-neutral-950 py-20 lg:py-28">
+    <div class="absolute inset-0">
+      <img
+        src="/images/performance/performance-engine-alt.webp"
+        alt="Illustrated performance marketing engine connecting advertising inputs, campaign systems, and measurable growth"
+        class="h-full w-full object-cover opacity-40"
+        width="1200"
+        height="675"
+        loading="eager"
+      />
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/95 via-neutral-950/80 to-neutral-950/60" />
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-300">
+          <Icon name="lucide:book-open" class="size-3.5" />
+          Insights
+        </span>
+        <h1 class="mt-6 font-display text-5xl font-semibold tracking-tight text-white sm:text-6xl">
+          Marketing Tips & Strategies
+        </h1>
+        <p class="mt-6 text-lg leading-relaxed text-neutral-300">
+          Practical advice, campaign strategies, and industry insights from the CLICKNX team. Stay informed and maximize your marketing ROI.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BLOG GRID ============ -->
+  <section class="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
+    {posts.length === 0 ? (
+      <p class="mt-12 text-center text-stone-500">
+        No articles yet. Check back soon for performance marketing insights.
+      </p>
+    ) : (
+      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => {
+          const colors = categoryColors[post.data.category] || categoryColors.news;
+          return (
+            <a
+              href={blogUrl(post.id)}
+              class="card-hover group flex flex-col rounded-2xl border border-stone-200 bg-white transition-all duration-300 hover:border-brand-200 hover:shadow-xl hover:shadow-brand-100/50"
+            >
+              <div class="flex flex-1 flex-col p-7">
+                <div class="flex items-center gap-3">
+                  <span class={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${colors.bg} ${colors.text}`}>
+                    {post.data.category.replace('-', ' ')}
+                  </span>
+                  {post.data.readingTime && (
+                    <span class="flex items-center gap-1 text-xs text-stone-400">
+                      <Icon name="lucide:clock" class="size-3" />
+                      {post.data.readingTime}
+                    </span>
+                  )}
+                </div>
+
+                <h2 class="mt-4 font-display text-lg text-brand-950 group-hover:text-brand-700 transition-colors">
+                  {post.data.title}
+                </h2>
+
+                <p class="mt-3 flex-1 text-sm leading-relaxed text-stone-600">
+                  {post.data.description}
+                </p>
+
+                <div class="mt-5 flex items-center gap-2 border-t border-stone-100 pt-4 text-xs text-stone-400">
+                  <Icon name="lucide:calendar" class="size-3.5" />
+                  <time datetime={post.data.publishDate}>
+                    {formatDate(post.data.publishDate)}
+                  </time>
+                  <span class="text-stone-300">|</span>
+                  <span>{post.data.author}</span>
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    )}
+  </section>
+</BaseLayout>
