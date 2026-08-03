@@ -1,0 +1,27 @@
+---
+/**
+ * Filled star for rating displays.
+ *
+ * The lucide star shipped via astro-icon renders its path with a hard-coded
+ * `fill="none"` attribute inside a <symbol>, which a `fill-*` utility on the
+ * outer <svg> cannot override (the path is referenced through <use>, so the
+ * fill neither cascades nor inherits). This draws the star directly instead.
+ */
+interface Props {
+  filled?: boolean;
+  class?: string;
+}
+
+const { filled = true, class: className = 'size-4' } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 24 24"
+  aria-hidden="true"
+  class={`${className} ${filled ? 'text-amber-400' : 'text-neutral-200'}`}
+  fill="currentColor"
+>
+  <path
+    d="M12 1.8l3.09 6.26 6.91 1.01-5 4.87 1.18 6.88L12 17.58l-6.18 3.24L7 13.94l-5-4.87 6.91-1.01L12 1.8z"
+  ></path>
+</svg>

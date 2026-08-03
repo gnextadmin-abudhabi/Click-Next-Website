@@ -4,9 +4,8 @@ import { serviceTypes } from '../../../data/serviceTypes';
 import { serviceAreas, getNearbyAreas } from '../../../data/serviceAreas';
 import type { ServiceType } from '../../../data/serviceTypes';
 import type { ServiceArea } from '../../../data/serviceAreas';
-import { serviceUrl, areaUrl, comboUrl, contactUrl } from '../../../lib/urls';
+import { comboUrl, contactUrl } from '../../../lib/urls';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../../components/Breadcrumbs.astro';
 import SeoTestimonials from '../../../components/SeoTestimonials.astro';
 import { getServiceFaqs, getGlobalFaqs } from '../../../data/seoContent';
 import { Icon } from 'astro-icon/components';
@@ -79,14 +78,6 @@ const faqSchema = {
   canonicalUrl={`${business.siteUrl}${comboUrl(area.slug, service.slug)}`}
   schema={schema}
 >
-  <Breadcrumbs
-    crumbs={[
-      { label: 'Services', href: '/services/' },
-      { label: area.name, href: areaUrl(area.slug) },
-      { label: service.name },
-    ]}
-  />
-
   <article class="mx-auto max-w-7xl px-5 lg:px-8">
     <!-- ============ HERO ============ -->
     <header class="pb-10 pt-6 lg:pt-10">

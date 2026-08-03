@@ -1,15 +1,229 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Icon } from 'astro-icon/components';
+import StarIcon from '../components/StarIcon.astro';
 import { business } from '../data/business';
-import { serviceTypes, getFeaturedServices } from '../data/serviceTypes';
-import { serviceAreas, getFeaturedAreas } from '../data/serviceAreas';
+import { serviceTypes } from '../data/serviceTypes';
+import { serviceAreas } from '../data/serviceAreas';
 import { serviceUrl, areaUrl, contactUrl } from '../lib/urls';
 import { reviews, getAverageRating } from '../data/seoContent';
 
 const avgRating = getAverageRating();
-const featuredServices = getFeaturedServices();
-const featuredAreas = getFeaturedAreas();
+
+// ---------- Hero dashboard: per-channel snapshot ----------
+const channels = [
+  {
+    key: 'google',
+    label: 'Google Ads',
+    icon: 'lucide:search',
+    roas: 6.2,
+    spend: 'AED 35,000',
+    leads: '412',
+    cpl: 'AED 85',
+    delta: '+340%',
+    bars: [34, 46, 40, 62, 55, 78, 70, 96],
+  },
+  {
+    key: 'meta',
+    label: 'Meta Ads',
+    icon: 'lucide:instagram',
+    roas: 5.6,
+    spend: 'AED 15,000',
+    leads: '380',
+    cpl: 'AED 39',
+    delta: '+211%',
+    bars: [28, 40, 56, 48, 70, 62, 86, 92],
+  },
+  {
+    key: 'tiktok',
+    label: 'TikTok Ads',
+    icon: 'lucide:video',
+    roas: 4.8,
+    spend: 'AED 12,000',
+    leads: '295',
+    cpl: 'AED 41',
+    delta: '+180%',
+    bars: [22, 34, 46, 60, 52, 68, 82, 90],
+  },
+];
+
+// ---------- Marquee ticker items ----------
+const tickerItems = [
+  { icon: 'lucide:search', label: 'Google Search' },
+  { icon: 'lucide:layers', label: 'Performance Max' },
+  { icon: 'lucide:instagram', label: 'Instagram Ads' },
+  { icon: 'lucide:facebook', label: 'Facebook Ads' },
+  { icon: 'lucide:video', label: 'TikTok Ads' },
+  { icon: 'lucide:linkedin', label: 'LinkedIn B2B' },
+  { icon: 'lucide:layout-template', label: 'Landing Pages' },
+  { icon: 'lucide:mouse-pointer-click', label: 'CRO & A/B Testing' },
+  { icon: 'lucide:activity', label: 'GA4 + GTM' },
+  { icon: 'lucide:route', label: 'Attribution' },
+  { icon: 'lucide:megaphone', label: 'Paid Social' },
+  { icon: 'lucide:radar', label: 'Retargeting' },
+];
+
+// ---------- Proof numbers (sourced from case studies) ----------
+const proofStats = [
+  { value: 420, suffix: '%', label: 'More qualified inquiries', sub: 'MEP contractor, Dubai', icon: 'lucide:trending-up' },
+  { value: 6.2, suffix: 'x', label: 'Return on ad spend', sub: 'Real estate developer, Abu Dhabi', icon: 'lucide:gauge', decimals: 1 },
+  { value: 81, suffix: '%', label: 'Lower cost per lead', sub: 'Commercial contracting', icon: 'lucide:wallet' },
+  { value: 48, suffix: 'hr', label: 'Campaign launch time', sub: 'From strategy sign-off', icon: 'lucide:rocket' },
+];
+
+// ---------- Services: bento layout + filter categories ----------
+const serviceCategory: Record<string, string> = {
+  'google-ads-management': 'paid',
+  'meta-ads': 'paid',
+  'tiktok-ads': 'paid',
+  'linkedin-ads': 'paid',
+  'programmatic-advertising': 'paid',
+  'conversion-rate-optimization': 'convert',
+  'landing-page-design': 'convert',
+  'analytics-tracking': 'data',
+  'social-media-marketing': 'social',
+};
+
+const serviceFilters = [
+  { key: 'all', label: 'Everything', icon: 'lucide:layers' },
+  { key: 'paid', label: 'Paid Media', icon: 'lucide:target' },
+  { key: 'convert', label: 'Conversion', icon: 'lucide:mouse-pointer-click' },
+  { key: 'data', label: 'Data & Tracking', icon: 'lucide:activity' },
+  { key: 'social', label: 'Organic Social', icon: 'lucide:megaphone' },
+];
+
+const bentoSpan = [
+  'lg:col-span-3 lg:row-span-2',
+  'lg:col-span-3',
+  'lg:col-span-3',
+  'lg:col-span-2',
+  'lg:col-span-2',
+  'lg:col-span-2',
+  'lg:col-span-2',
+  'lg:col-span-2',
+  'lg:col-span-2',
+];
+
+// ---------- Process steps ----------
+const processSteps = [
+  {
+    n: '01',
+    title: 'Audit & Discovery',
+    icon: 'lucide:radar',
+    lead: 'We open the hood before we touch the budget.',
+    body: 'Account structure, search term waste, tracking integrity, landing page friction and competitor positioning — all mapped in the first week so every later decision has evidence behind it.',
+    points: ['Full paid media account audit', 'Tracking & attribution health check', 'Competitor auction analysis'],
+  },
+  {
+    n: '02',
+    title: 'Strategy & Media Plan',
+    icon: 'lucide:compass',
+    lead: 'A plan built around your unit economics, not platform defaults.',
+    body: 'We define channel mix, budget allocation, audience architecture and the exact KPIs that map to revenue. You approve the plan before a single dirham is spent.',
+    points: ['Channel & budget allocation model', 'Audience and offer architecture', 'Target CPL / ROAS agreed upfront'],
+  },
+  {
+    n: '03',
+    title: 'Build & Launch',
+    icon: 'lucide:rocket',
+    lead: 'Campaigns, creative and pages ship together.',
+    body: 'Ad copy, creative variants, conversion-focused landing pages and complete GA4 + GTM instrumentation go live as one system — typically within 48 hours of approval.',
+    points: ['Campaign + creative production', 'Dedicated landing pages', 'GA4, GTM and pixel instrumentation'],
+  },
+  {
+    n: '04',
+    title: 'Optimise & Scale',
+    icon: 'lucide:trending-up',
+    lead: 'Weekly iteration, compounding gains.',
+    body: 'Bid and budget reallocation, negative keyword hygiene, creative rotation and structured A/B tests. Winning patterns get scaled, losers get cut fast, and you see all of it in a live dashboard.',
+    points: ['Weekly optimisation sprints', 'Structured A/B testing roadmap', 'Live Looker Studio reporting'],
+  },
+];
+
+// ---------- Differentiators (accordion + visual) ----------
+const differentiators = [
+  {
+    icon: 'lucide:database',
+    title: 'Decisions from data, not opinion',
+    body: 'Every recommendation traces back to a number in your account. We show the query report, the test result or the attribution path that led to the call — so you can challenge it.',
+    image: '/images/performance/analytics-optimization.webp',
+    alt: 'Illustrated analytics optimisation loop turning campaign data into performance decisions',
+  },
+  {
+    icon: 'lucide:eye',
+    title: 'Full transparency by default',
+    body: 'You own the ad accounts, the pixels and the data. Live dashboards, weekly reporting, no locked platforms, no mystery management fee buried in ad spend.',
+    image: '/images/performance/analytics-attribution.webp',
+    alt: 'Illustrated attribution reporting connecting ad platforms to business outcomes',
+  },
+  {
+    icon: 'lucide:zap',
+    title: 'Built to ship fast',
+    body: 'Campaigns live within 48 hours of strategy approval. Landing pages built in-house, so creative, copy and page never wait on a third party.',
+    image: '/images/performance/landing-page-anatomy.webp',
+    alt: 'Illustrated anatomy of a high-converting landing page',
+  },
+  {
+    icon: 'lucide:scale',
+    title: 'Structured to scale',
+    body: 'Account architecture designed for AED 5K/month and still holding at AED 500K. Naming conventions, budget guardrails and testing frameworks that survive growth.',
+    image: '/images/performance/uae-performance.webp',
+    alt: 'Illustrated UAE performance marketing coverage across emirates',
+  },
+];
+
+// ---------- Coverage map: derive pin positions from real coordinates ----------
+// Equirectangular projection into a 0-100 box. The SVG outline below uses the
+// same function with preserveAspectRatio="none", so pins and coastline align.
+const BOUNDS = { minLng: 51.3, maxLng: 56.6, minLat: 22.4, maxLat: 26.3 };
+const projectX = (lng: number) => Math.round(((lng - BOUNDS.minLng) / (BOUNDS.maxLng - BOUNDS.minLng)) * 1000) / 10;
+const projectY = (lat: number) => Math.round(((BOUNDS.maxLat - lat) / (BOUNDS.maxLat - BOUNDS.minLat)) * 1000) / 10;
+
+const areaPins = serviceAreas.map((area) => ({
+  ...area,
+  x: projectX(area.lng),
+  y: projectY(area.lat),
+}));
+
+// Simplified UAE border, traced along the Gulf coast then back along the inland
+// frontier with Saudi Arabia and Oman.
+const uaeBorder: [number, number][] = [
+  [51.58, 24.26], [51.62, 24.06], [52.05, 23.96], [52.62, 24.16], [53.42, 24.16],
+  [54.02, 24.06], [54.5, 24.3], [55.02, 24.62], [55.5, 25.1], [55.86, 25.5],
+  [56.06, 25.72], [56.38, 25.96], [56.4, 25.58], [56.34, 25.2], [56.2, 24.95],
+  [55.82, 24.26], [55.56, 23.96], [55.22, 23.0], [53.0, 22.62], [51.6, 22.96],
+];
+
+// The map is drawn as a dot matrix rather than a filled outline: the abstraction
+// reads as deliberate data-viz and is forgiving of an approximate border.
+// SVG space is 160x100 so that, inside a 16/10 box with preserveAspectRatio
+// "none", the x and y scales match and the dots stay perfectly round.
+const svgX = (lng: number) => Math.round(projectX(lng) * 16) / 10;
+
+function insideUae(lng: number, lat: number): boolean {
+  let inside = false;
+  for (let i = 0, j = uaeBorder.length - 1; i < uaeBorder.length; j = i++) {
+    const [xi, yi] = uaeBorder[i];
+    const [xj, yj] = uaeBorder[j];
+    if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+const DOT_COLS = 62;
+const DOT_ROWS = 39; // 62 / 1.6, keeps the grid visually square
+const mapDots: { x: number; y: number }[] = [];
+for (let row = 0; row < DOT_ROWS; row++) {
+  for (let col = 0; col < DOT_COLS; col++) {
+    const bx = ((col + 0.5) / DOT_COLS) * 100;
+    const by = ((row + 0.5) / DOT_ROWS) * 100;
+    const lng = BOUNDS.minLng + (bx / 100) * (BOUNDS.maxLng - BOUNDS.minLng);
+    const lat = BOUNDS.maxLat - (by / 100) * (BOUNDS.maxLat - BOUNDS.minLat);
+    if (insideUae(lng, lat)) {
+      mapDots.push({ x: Math.round(bx * 16) / 10, y: Math.round(by * 10) / 10 });
+    }
+  }
+}
 
 const schema = {
   '@context': 'https://schema.org',
@@ -86,240 +300,463 @@ const schema = {
   description={business.description}
   schema={schema}
 >
-  <!-- ============ HERO ============ -->
-  <section class="relative overflow-hidden bg-neutral-950">
-    <!-- Background image -->
-    <div class="absolute inset-0">
-      <img
-        src="/images/performance/home-hero.webp"
-        alt="Illustrated performance marketing engine connecting paid media channels, campaign assets, conversion tracking, and business growth"
-        class="h-full w-full object-cover opacity-55"
-        width="1440"
-        height="810"
-        loading="eager"
-      />
-    </div>
-    <!-- Background gradient -->
-    <div class="pointer-events-none absolute inset-0">
-      <div class="absolute -top-40 -right-40 size-[600px] rounded-full bg-brand-600/15 blur-[120px]" />
-      <div class="absolute -bottom-20 left-1/4 size-[400px] rounded-full bg-brand-700/10 blur-[100px]" />
-      <div class="absolute top-1/3 right-1/3 size-[200px] rounded-full bg-brand-500/5 blur-3xl" />
-    </div>
-    <!-- Grid pattern -->
-    <div class="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/75 to-neutral-950/20" />
+  <script
+    is:inline
+    define:vars={{
+      areaPayload: Object.fromEntries(
+        areaPins.map((a) => [
+          a.slug,
+          { name: a.name, county: a.county, description: a.description, population: a.population, url: areaUrl(a.slug) },
+        ])
+      ),
+    }}
+  >
+    window.__CLICKNX_AREAS__ = areaPayload;
+  </script>
 
-    <div class="relative mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-40">
-      <div class="max-w-3xl text-left">
-        <!-- Badge -->
-        <div class="mb-8 inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/5 px-4 py-1.5 backdrop-blur-sm">
-          <span class="relative flex size-2">
-            <span class="absolute inline-flex size-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
-            <span class="relative inline-flex size-2 rounded-full bg-brand-400"></span>
-          </span>
-          <span class="text-xs font-semibold uppercase tracking-wider text-brand-300">
-            Abu Dhabi's Performance Marketing Agency
-          </span>
+  <!-- Scroll progress rail -->
+  <div class="fixed inset-x-0 top-0 z-[60] h-[3px] bg-transparent">
+    <div
+      id="lp-progress"
+      class="h-full w-0 origin-left bg-gradient-to-r from-brand-500 via-brand-400 to-cyan-400 shadow-[0_0_12px_rgba(139,92,246,0.8)]"
+    />
+  </div>
+
+  <!-- ============================================================
+       1 — HERO · dark command deck with live dashboard
+       ============================================================ -->
+  <section
+    id="lp-hero"
+    class="lp-noise relative overflow-hidden bg-neutral-950"
+  >
+    <!-- aurora field -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div class="lp-aurora size-[46rem] -top-64 -left-40 bg-brand-600/30" style="animation-duration:26s"></div>
+      <div class="lp-aurora size-[34rem] top-10 right-[-8rem] bg-cyan-500/20" style="animation-duration:20s;animation-delay:-6s"></div>
+      <div class="lp-aurora size-[30rem] bottom-[-10rem] left-1/3 bg-fuchsia-600/20" style="animation-duration:32s;animation-delay:-12s"></div>
+    </div>
+    <div class="lp-grid pointer-events-none absolute inset-0"></div>
+    <!-- cursor spotlight -->
+    <div
+      id="lp-hero-glow"
+      class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500"
+      style="background:radial-gradient(600px circle at var(--hx,50%) var(--hy,50%), rgba(139,92,246,0.18), transparent 60%)"
+    >
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-5 pb-28 pt-24 lg:px-8 lg:pb-36 lg:pt-32">
+      <div class="grid items-center gap-14 lg:grid-cols-12 lg:gap-10">
+        <!-- copy -->
+        <div class="lg:col-span-7">
+          <div class="lp-reveal inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 py-1.5 pl-2 pr-4 backdrop-blur-md">
+            <span class="lp-live flex size-2 rounded-full bg-emerald-400 text-emerald-400"></span>
+            <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-300">
+              Abu Dhabi · Performance Marketing
+            </span>
+            <span class="hidden h-3 w-px bg-white/15 sm:block"></span>
+            <span class="hidden text-[11px] font-medium text-neutral-500 sm:block">Est. {business.foundedYear}</span>
+          </div>
+
+          <h1 class="mt-7 font-display text-[2.75rem] font-semibold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
+            <span class="lp-reveal block" style="--lp-delay:80ms">Ad spend in.</span>
+            <span class="lp-reveal lp-shine block" style="--lp-delay:180ms">Revenue out.</span>
+            <span class="lp-reveal block text-neutral-500" style="--lp-delay:280ms">Nothing in between unmeasured.</span>
+          </h1>
+
+          <p class="lp-reveal mt-7 max-w-xl text-lg leading-relaxed text-neutral-400" style="--lp-delay:360ms">
+            We run Google, Meta, TikTok and LinkedIn campaigns for UAE businesses — wired to conversion-built landing pages and
+            tracking that connects every click to a booked deal.
+          </p>
+
+          <div class="lp-reveal mt-9 flex flex-col gap-3.5 sm:flex-row sm:items-center" style="--lp-delay:440ms">
+            <a
+              href={contactUrl()}
+              data-magnetic
+              class="lp-magnetic lp-sheen group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-7 py-4 text-sm font-semibold text-neutral-900 shadow-[0_18px_40px_-16px_rgba(255,255,255,0.5)]"
+            >
+              <span class="lp-sheen-bar"></span>
+              Get a free paid media audit
+              <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </a>
+            <a
+              href="#lp-calculator"
+              class="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-white/12 bg-white/5 px-7 py-4 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/25 hover:bg-white/10"
+            >
+              <Icon name="lucide:calculator" class="size-4 text-brand-300" />
+              Model your ROAS
+            </a>
+          </div>
+
+          <div class="lp-reveal mt-10 flex flex-wrap items-center gap-x-8 gap-y-4" style="--lp-delay:520ms">
+            <div class="flex items-center gap-3">
+              <div class="flex -space-x-2.5">
+                {reviews.slice(0, 4).map((r, i) => (
+                  <span
+                    class="flex size-9 items-center justify-center rounded-full border-2 border-neutral-950 bg-gradient-to-br from-brand-500 to-brand-700 text-xs font-bold text-white"
+                    style={`z-index:${10 - i}`}
+                  >
+                    {r.name.charAt(0)}
+                  </span>
+                ))}
+              </div>
+              <div>
+                <div class="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }).map(() => (
+                    <StarIcon class="size-3.5" />
+                  ))}
+                </div>
+                <p class="mt-0.5 text-xs text-neutral-500">{avgRating} from {reviews.length} client reviews</p>
+              </div>
+            </div>
+            <div class="h-10 w-px bg-white/10"></div>
+            <div class="flex flex-wrap gap-x-5 gap-y-2">
+              {business.certifications.map((c) => (
+                <span class="inline-flex items-center gap-1.5 text-xs text-neutral-500">
+                  <Icon name="lucide:badge-check" class="size-3.5 text-brand-400" />
+                  {c}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <h1 class="font-display text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
-          Turn Ad Spend Into
-          <span class="block bg-gradient-to-r from-brand-300 via-brand-400 to-brand-500 bg-clip-text text-transparent">Measurable Revenue</span>
-        </h1>
+        <!-- live dashboard card -->
+        <div class="lp-reveal lp-reveal-xr lg:col-span-5" style="--lp-delay:300ms">
+          <div class="relative">
+            <div class="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-brand-600/20 via-transparent to-cyan-500/10 blur-2xl"></div>
 
-        <p class="mt-7 max-w-2xl text-lg leading-relaxed text-neutral-300">
-          Performance marketing for UAE businesses—Google Ads, Meta campaigns, conversion-focused landing pages, and tracking that connects every click to a business outcome.
-        </p>
+            <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-900/60 shadow-2xl shadow-black/50 backdrop-blur-2xl">
+              <!-- window chrome -->
+              <div class="flex items-center justify-between border-b border-white/[0.07] px-5 py-3.5">
+                <div class="flex items-center gap-2">
+                  <span class="size-2.5 rounded-full bg-red-400/70"></span>
+                  <span class="size-2.5 rounded-full bg-amber-400/70"></span>
+                  <span class="size-2.5 rounded-full bg-emerald-400/70"></span>
+                </div>
+                <span class="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-widest text-neutral-500">
+                  <span class="size-1.5 animate-pulse rounded-full bg-emerald-400"></span>
+                  Live
+                </span>
+              </div>
 
-        <div class="mt-6 flex flex-wrap gap-2" aria-label="Core performance marketing capabilities">
-          {['Google Ads', 'Meta Ads', 'Landing Pages', 'CRO', 'Analytics'].map((channel) => (
-            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-neutral-300 backdrop-blur-sm">{channel}</span>
-          ))}
-        </div>
+              <!-- channel tabs -->
+              <div class="flex gap-1 px-4 pt-4">
+                {channels.map((c, i) => (
+                  <button
+                    type="button"
+                    class={`lp-ch-tab flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-300 ${i === 0 ? 'bg-white/10 text-white ring-1 ring-white/15' : 'text-neutral-500 hover:bg-white/5 hover:text-neutral-300'}`}
+                    data-ch={c.key}
+                    data-roas={c.roas}
+                    data-spend={c.spend}
+                    data-leads={c.leads}
+                    data-cpl={c.cpl}
+                    data-delta={c.delta}
+                    data-bars={c.bars.join(',')}
+                    aria-pressed={i === 0 ? 'true' : 'false'}
+                  >
+                    <Icon name={c.icon} class="size-3.5" />
+                    <span class="hidden sm:inline">{c.label.split(' ')[0]}</span>
+                  </button>
+                ))}
+              </div>
 
-        <div class="mt-10 flex flex-col items-start gap-4 sm:flex-row">
-          <a
-            href={contactUrl()}
-            class="group inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-neutral-900 shadow-xl shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-          >
-            Get a Free Paid Media Audit
-            <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </a>
-          <a
-            href="/services/"
-            class="inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:bg-white/10 hover:border-white/20"
-          >
-            View Our Services
-          </a>
+              <div class="p-6">
+                <p class="text-xs font-medium uppercase tracking-widest text-neutral-500">Return on ad spend</p>
+                <div class="mt-2 flex items-end gap-3">
+                  <span id="lp-roas" class="font-display text-6xl font-bold leading-none tracking-tight text-white">6.2x</span>
+                  <span
+                    id="lp-delta"
+                    class="mb-1.5 inline-flex items-center gap-1 rounded-lg bg-emerald-500/12 px-2 py-1 text-xs font-semibold text-emerald-400"
+                  >
+                    <Icon name="lucide:arrow-up-right" class="size-3.5" />
+                    <span>+340%</span>
+                  </span>
+                </div>
+
+                <!-- bar chart -->
+                <div id="lp-chart" class="mt-7 flex h-32 items-end gap-2">
+                  {channels[0].bars.map((h, i) => (
+                    <div class="flex h-full flex-1 items-end">
+                      <div
+                        class="lp-bar w-full rounded-t-md bg-gradient-to-t from-brand-700/50 via-brand-500 to-brand-300"
+                        style={`--h:${h}%;--lp-delay:${i * 70 + 400}ms`}
+                      >
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div class="mt-2 flex justify-between text-[10px] text-neutral-600">
+                  <span>Week 1</span><span>Week 8</span>
+                </div>
+
+                <div class="mt-6 grid grid-cols-3 gap-2.5">
+                  {[
+                    { id: 'lp-spend', label: 'Spend', value: channels[0].spend },
+                    { id: 'lp-leads', label: 'Leads', value: channels[0].leads },
+                    { id: 'lp-cpl', label: 'Cost / lead', value: channels[0].cpl },
+                  ].map((s) => (
+                    <div class="rounded-xl border border-white/[0.07] bg-white/[0.03] p-3">
+                      <p class="text-[10px] uppercase tracking-wider text-neutral-500">{s.label}</p>
+                      <p id={s.id} class="mt-1 font-display text-sm font-semibold text-white">{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <p class="mt-5 text-[10px] leading-relaxed text-neutral-600">
+                  Illustrative dashboard built from anonymised client accounts. Individual results vary by market and budget.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Bottom fade -->
-    <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
   </section>
 
-  <!-- ============ STATS BAR ============ -->
-  <section class="relative -mt-16 z-10 mx-auto max-w-5xl px-5 lg:px-8">
-    <div class="rounded-2xl border border-neutral-200/80 bg-white/80 backdrop-blur-xl p-6 shadow-xl shadow-neutral-900/5 sm:grid sm:grid-cols-4 sm:gap-6 relative overflow-hidden">
-      <!-- Subtle gradient accent -->
-      <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/60 to-transparent" />
-      <div class="absolute inset-0 bg-gradient-to-br from-brand-50/30 via-transparent to-brand-100/20 pointer-events-none" />
-      {[
-        { icon: 'lucide:target', value: `${serviceTypes.length}`, label: 'Specialist Services' },
-        { icon: 'lucide:map-pin', value: '7', label: 'Emirates Covered' },
-        { icon: 'lucide:mouse-pointer-click', value: 'Google + Meta', label: 'Core Paid Channels' },
-        { icon: 'lucide:route', value: 'Full-Funnel', label: 'Measurement Approach' },
-      ].map((stat, i) => (
-        <div class={`flex items-center gap-4 py-4 sm:py-0 ${i > 0 ? 'sm:border-l sm:border-neutral-100 sm:pl-6' : ''} animate-fade-up stagger-${i + 1}`}>
-          <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-            <Icon name={stat.icon} class="size-5" />
-          </div>
-          <div>
-            <div class="text-xl font-bold text-neutral-900 font-display tracking-tight">{stat.value}</div>
-            <div class="text-sm text-neutral-500">{stat.label}</div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- ============ SERVICES GRID ============ -->
-  <section class="relative overflow-hidden py-24 lg:py-32">
-    <!-- Decorative gradient blobs -->
-    <div class="pointer-events-none absolute inset-0">
-      <div class="absolute top-20 -left-40 size-80 rounded-full bg-brand-100/30 blur-[80px]" />
-      <div class="absolute bottom-10 right-1/4 size-64 rounded-full bg-brand-200/20 blur-[60px]" />
-    </div>
-    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
-      <div class="mx-auto max-w-2xl text-center">
-        <span class="section-label">
-          <Icon name="lucide:target" class="size-3.5" />
-          What We Do
-        </span>
-        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
-          Services That Drive Revenue
-        </h2>
-        <p class="mt-5 text-lg leading-relaxed text-neutral-500">
-          From paid search to conversion optimization, every service is designed to produce measurable business results. No vanity metrics, just growth.
-        </p>
-      </div>
-
-      <div class="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {serviceTypes.map((service, i) => (
-          <a
-            href={serviceUrl(service.slug)}
-            class={`card-hover group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white animate-fade-up stagger-${Math.min(i + 1, 6)} hover:border-brand-200`}
-          >
-            <div class="relative aspect-[16/7] overflow-hidden bg-neutral-950">
-              <img src={service.image} alt={service.imageAlt} class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" width="688" height="384" loading="lazy" />
-              <div class="absolute inset-0 bg-gradient-to-t from-neutral-950/25 to-transparent" />
-            </div>
-            <div class="p-7">
-              <div class="flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon name={`lucide:${service.icon}`} class="size-5" /></div>
-              <h3 class="mt-5 font-display text-xl font-semibold tracking-tight text-neutral-900 group-hover:text-brand-700 transition-colors">{service.name}</h3>
-              <p class="mt-3 text-sm leading-relaxed text-neutral-500 line-clamp-3">{service.description}</p>
-              <div class="mt-6 flex items-center gap-2 text-sm font-semibold text-brand-600">Explore service <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1.5" /></div>
-            </div>
-          </a>
+  <!-- ============================================================
+       2 — CHANNEL TICKER · infinite marquee band
+       ============================================================ -->
+  <section class="relative overflow-hidden border-y border-white/[0.07] bg-neutral-950 py-6">
+    <div class="lp-marquee-wrap relative">
+      <div class="lp-marquee items-center gap-10 pr-10" style="--speed:44s">
+        {[...tickerItems, ...tickerItems].map((item) => (
+          <span class="flex shrink-0 items-center gap-2.5 text-sm font-medium text-neutral-500 transition-colors duration-300 hover:text-white">
+            <Icon name={item.icon} class="size-4 text-brand-400" />
+            {item.label}
+            <span class="ml-8 size-1 rounded-full bg-neutral-800"></span>
+          </span>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- ============ HOW WE WORK ============ -->
-  <section class="bg-neutral-950 py-24 lg:py-32" id="how-we-work">
-    <div class="mx-auto max-w-7xl px-5 lg:px-8">
-      <div class="mx-auto max-w-2xl text-center">
-        <span class="inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-300">
-          <Icon name="lucide:settings" class="size-3.5" />
-          Our Process
-        </span>
-        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-          How We Drive Results
-        </h2>
-        <p class="mt-5 text-lg leading-relaxed text-neutral-400">
-          From strategy to scale, our proven process ensures every campaign is built for maximum impact and measurable ROI.
+  <!-- ============================================================
+       3 — PROOF · oversized count-up figures
+       ============================================================ -->
+  <section class="relative overflow-hidden bg-white py-20 lg:py-24">
+    <div class="lp-grid-light pointer-events-none absolute inset-0"></div>
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="lp-reveal flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <span class="section-label">
+            <Icon name="lucide:trophy" class="size-3.5" />
+            Client outcomes
+          </span>
+          <h2 class="mt-4 max-w-lg font-display text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
+            The numbers that actually matter
+          </h2>
+        </div>
+        <p class="max-w-xs text-sm leading-relaxed text-neutral-500">
+          Pulled from live UAE client engagements across contracting, real estate, retail and hospitality.
         </p>
       </div>
 
-      <!-- Interactive steps -->
-      <div class="mt-16 lg:flex lg:gap-10">
-        <!-- Step selector -->
-        <div class="flex gap-3 overflow-x-auto pb-4 lg:w-80 lg:shrink-0 lg:flex-col lg:gap-2 lg:overflow-visible lg:pb-0">
-          {[
-            {
-              step: 1,
-              title: 'Discovery & Audit',
-              icon: 'lucide:search',
-              summary: 'Deep dive into your business, competitors, and current marketing.',
-              detail: 'We analyze your existing campaigns, website performance, target audience, and competitive landscape. This discovery phase uncovers opportunities and sets the foundation for a data-driven strategy tailored to your goals.',
-            },
-            {
-              step: 2,
-              title: 'Strategy & Planning',
-              icon: 'lucide:compass',
-              summary: 'Custom roadmap with channel selection and budget allocation.',
-              detail: 'Based on our findings, we build a comprehensive media plan: which platforms to use, how to allocate your budget, what audiences to target, and what KPIs to track. Every decision is backed by data, not guesswork.',
-            },
-            {
-              step: 3,
-              title: 'Launch & Optimize',
-              icon: 'lucide:rocket',
-              summary: 'Campaign deployment with daily monitoring and adjustments.',
-              detail: 'We launch your campaigns with full tracking infrastructure. Daily bid management, creative testing, audience refinement, and negative keyword management ensure your budget is always working as hard as possible.',
-            },
-            {
-              step: 4,
-              title: 'Scale & Report',
-              icon: 'lucide:trending-up',
-              summary: 'Transparent reporting with data-driven growth strategies.',
-              detail: 'Weekly performance reports, automated dashboards, and strategic reviews keep you informed at every stage. We identify winning patterns and scale what works while continuously testing new opportunities for growth.',
-            },
-          ].map((item, i) => (
+      <div class="mt-14 grid gap-px overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-200 sm:grid-cols-2 lg:grid-cols-4">
+        {proofStats.map((stat, i) => (
+          <div
+            class="lp-reveal group relative bg-white p-8 transition-colors duration-500 hover:bg-brand-50/40"
+            style={`--lp-delay:${i * 90}ms`}
+          >
+            <div class="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-brand-500 to-cyan-400 transition-transform duration-500 group-hover:scale-x-100"></div>
+            <Icon name={stat.icon} class="size-5 text-brand-500" />
+            <div class="mt-6 font-display text-5xl font-bold tracking-tighter text-neutral-900 lg:text-6xl">
+              <span
+                class="lp-count"
+                data-count={stat.value}
+                data-decimals={stat.decimals ?? 0}
+              >0</span><span class="text-brand-500">{stat.suffix}</span>
+            </div>
+            <p class="mt-3 text-sm font-semibold text-neutral-800">{stat.label}</p>
+            <p class="mt-1 text-xs text-neutral-400">{stat.sub}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       4 — SERVICES · filterable bento grid with cursor spotlight
+       ============================================================ -->
+  <section id="lp-services" class="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -left-40 top-32 size-96 rounded-full bg-brand-200/25 blur-[110px]"></div>
+      <div class="absolute -right-32 bottom-20 size-80 rounded-full bg-cyan-200/25 blur-[100px]"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="lp-reveal flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+        <div class="max-w-2xl">
+          <span class="section-label">
+            <Icon name="lucide:crosshair" class="size-3.5" />
+            Capabilities
+          </span>
+          <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+            Nine specialisms.<br />
+            <span class="text-neutral-400">One accountable growth system.</span>
+          </h2>
+        </div>
+
+        <!-- filter chips -->
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Filter services by category">
+          {serviceFilters.map((f, i) => (
             <button
               type="button"
-              class={`hww-tab group flex w-64 shrink-0 items-start gap-4 rounded-xl px-5 py-4 text-left transition-all duration-300 lg:w-full ${i === 0 ? 'bg-white/8 ring-1 ring-white/12' : 'hover:bg-white/4'}`}
-              data-step={item.step}
-              data-title={item.title}
-              data-detail={item.detail}
+              class={`lp-filter inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-300 ${i === 0 ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-500 hover:border-neutral-400 hover:text-neutral-900'}`}
+              data-filter={f.key}
+              aria-pressed={i === 0 ? 'true' : 'false'}
             >
-              <div class={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-all duration-300 ${i === 0 ? 'bg-white text-brand-900 shadow-lg' : 'bg-white/8 text-neutral-400 group-hover:bg-white/12'}`}>
-                <Icon name={item.icon} class="size-5" />
-              </div>
-              <div>
-                <span class={`text-xs font-semibold ${i === 0 ? 'text-brand-300' : 'text-neutral-500'}`}>Step {item.step}</span>
-                <h3 class={`mt-0.5 text-sm font-semibold ${i === 0 ? 'text-white' : 'text-neutral-300'}`}>
-                  {item.title}
-                </h3>
-                <p class={`mt-1 text-xs leading-relaxed ${i === 0 ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                  {item.summary}
-                </p>
-              </div>
+              <Icon name={f.icon} class="size-3.5" />
+              {f.label}
             </button>
           ))}
         </div>
+      </div>
 
-        <!-- Content panel -->
-        <div class="mt-8 flex-1 lg:mt-0">
-          <div class="relative overflow-hidden rounded-2xl border border-white/8 bg-white/4 p-8 backdrop-blur-sm">
-            <div class="flex items-center gap-4 mb-5">
-              <span class="flex size-12 items-center justify-center rounded-xl bg-white text-lg font-bold text-brand-900 shadow-lg" id="hww-step-num">1</span>
-              <h3 class="font-display text-2xl font-semibold text-white" id="hww-title">Discovery & Audit</h3>
+      <div id="lp-svc-grid" class="mt-14 grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        {serviceTypes.map((service, i) => (
+          <a
+            href={serviceUrl(service.slug)}
+            data-card
+            data-cat={serviceCategory[service.slug]}
+            class={`lp-svc-card lp-spot lp-reveal group flex flex-col overflow-hidden rounded-3xl border border-neutral-200 bg-white transition-[transform,box-shadow] duration-500 hover:-translate-y-1.5 hover:shadow-[0_28px_60px_-30px_rgba(76,29,149,0.45)] ${bentoSpan[i]}`}
+            style={`--lp-delay:${Math.min(i, 6) * 70}ms`}
+          >
+            {i === 0 && (
+              <div class="relative aspect-[16/9] shrink-0 overflow-hidden bg-neutral-950 lg:aspect-[16/10]">
+                <img
+                  src={service.image}
+                  alt={service.imageAlt}
+                  class="size-full object-cover opacity-90 transition-transform duration-[900ms] group-hover:scale-105"
+                  width="880"
+                  height="550"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/25 to-transparent"></div>
+                <span class="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-md">
+                  <Icon name="lucide:flame" class="size-3" />
+                  Most requested
+                </span>
+              </div>
+            )}
+
+            <div class={`flex flex-1 flex-col p-6 ${i === 0 ? 'lg:p-8' : ''}`}>
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-neutral-900 text-white transition-colors duration-500 group-hover:bg-brand-600">
+                  <Icon name={`lucide:${service.icon}`} class="size-5" />
+                </div>
+                <Icon
+                  name="lucide:arrow-up-right"
+                  class="size-5 shrink-0 text-neutral-300 transition-all duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-600"
+                />
+              </div>
+
+              <h3 class={`mt-5 font-display font-semibold tracking-tight text-neutral-900 ${i === 0 ? 'text-2xl lg:text-3xl' : 'text-lg'}`}>
+                {service.name}
+              </h3>
+              <p class={`mt-3 flex-1 text-sm leading-relaxed text-neutral-500 ${i === 0 ? '' : 'line-clamp-3'}`}>
+                {service.description}
+              </p>
+
+              <div class="mt-6 flex flex-wrap gap-1.5 border-t border-neutral-100 pt-5">
+                {service.process.slice(0, i === 0 ? 3 : 2).map((p) => (
+                  <span class="rounded-lg bg-neutral-100 px-2.5 py-1 text-[10px] font-medium text-neutral-500">
+                    {p.title}
+                  </span>
+                ))}
+              </div>
             </div>
-            <p class="text-base leading-relaxed text-neutral-300" id="hww-detail">
-              We analyze your existing campaigns, website performance, target audience, and competitive landscape. This discovery phase uncovers opportunities and sets the foundation for a data-driven strategy tailored to your goals.
-            </p>
-          </div>
+          </a>
+        ))}
+      </div>
 
-          <!-- Progress dots -->
-          <div class="mt-6 flex items-center justify-center gap-2 lg:justify-start">
-            {[1, 2, 3, 4].map((n) => (
-              <button
-                type="button"
-                class={`hww-dot h-2 rounded-full transition-all duration-300 ${n === 1 ? 'bg-white w-8' : 'bg-neutral-700 hover:bg-neutral-600 w-2'}`}
-                data-dot={n}
-                aria-label={`Go to step ${n}`}
-              />
+      <p id="lp-svc-empty" class="mt-10 hidden text-center text-sm text-neutral-400">
+        No services in this category.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       5 — PROCESS · sticky rail + scroll-driven steps
+       ============================================================ -->
+  <!-- No `overflow-hidden` on this section — it would break the sticky step rail. -->
+  <section class="lp-noise relative bg-neutral-950 py-24 lg:py-32" id="lp-process">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div class="lp-aurora size-[38rem] left-[-12rem] top-1/4 bg-brand-700/25" style="animation-duration:30s"></div>
+      <div class="lp-aurora size-[26rem] right-[-6rem] bottom-0 bg-cyan-600/15" style="animation-duration:24s;animation-delay:-8s"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="lp-reveal max-w-2xl">
+        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-300 backdrop-blur-md">
+          <Icon name="lucide:settings" class="size-3.5" />
+          How we work
+        </span>
+        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+          Four stages.<br />
+          <span class="text-neutral-600">No black boxes.</span>
+        </h2>
+      </div>
+
+      <div class="mt-16 grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <!-- sticky indicator -->
+        <div class="hidden lg:col-span-4 lg:block">
+          <div class="sticky top-28">
+            <div class="relative">
+              <span
+                id="lp-step-num"
+                class="block font-display text-[9rem] font-bold leading-none tracking-tighter text-transparent [-webkit-text-stroke:1.5px_rgba(167,139,250,0.35)]"
+              >01</span>
+              <div class="mt-8 space-y-3">
+                {processSteps.map((s, i) => (
+                  <button
+                    type="button"
+                    class="lp-step-nav group flex w-full items-center gap-4 text-left"
+                    data-goto={i}
+                  >
+                    <span class="lp-step-rail relative h-8 w-px shrink-0 bg-white/10">
+                      <span class={`lp-step-fill absolute inset-x-0 top-0 bg-brand-400 transition-all duration-500 ${i === 0 ? 'h-full' : 'h-0'}`}></span>
+                    </span>
+                    <span class={`lp-step-label text-sm font-medium transition-colors duration-300 ${i === 0 ? 'text-white' : 'text-neutral-600 group-hover:text-neutral-400'}`}>
+                      {s.title}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- step cards -->
+        <div class="lg:col-span-8">
+          <div class="space-y-5">
+            {processSteps.map((step, i) => (
+              <article
+                class="lp-step lp-spot lp-reveal group relative overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.03] p-7 backdrop-blur-sm transition-all duration-500 hover:border-white/15 lg:p-9"
+                data-step={i}
+                style={`--lp-delay:${i * 70}ms`}
+              >
+                <div class="flex flex-wrap items-center gap-4">
+                  <span class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-900/50">
+                    <Icon name={step.icon} class="size-5" />
+                  </span>
+                  <div>
+                    <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-400">Stage {step.n}</span>
+                    <h3 class="mt-0.5 font-display text-2xl font-semibold tracking-tight text-white">{step.title}</h3>
+                  </div>
+                </div>
+
+                <p class="mt-6 font-display text-lg font-medium leading-snug text-neutral-200">{step.lead}</p>
+                <p class="mt-3 text-sm leading-relaxed text-neutral-400">{step.body}</p>
+
+                <ul class="mt-6 grid gap-2.5 sm:grid-cols-3">
+                  {step.points.map((p) => (
+                    <li class="flex items-start gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 text-xs leading-relaxed text-neutral-400">
+                      <Icon name="lucide:circle-check" class="mt-0.5 size-3.5 shrink-0 text-brand-400" />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </article>
             ))}
           </div>
         </div>
@@ -327,304 +764,901 @@ const schema = {
     </div>
   </section>
 
-  <script>
-    const tabs = document.querySelectorAll<HTMLButtonElement>('.hww-tab');
-    const dots = document.querySelectorAll<HTMLButtonElement>('.hww-dot');
-    const stepNum = document.getElementById('hww-step-num');
-    const title = document.getElementById('hww-title');
-    const detail = document.getElementById('hww-detail');
+  <!-- ============================================================
+       6 — ROI CALCULATOR · fully interactive
+       ============================================================ -->
+  <section id="lp-calculator" class="relative overflow-hidden bg-white py-24 lg:py-32">
+    <div class="lp-grid-light pointer-events-none absolute inset-0"></div>
 
-    function activateStep(step: number) {
-      const tab = Array.from(tabs).find(t => Number(t.dataset.step) === step);
-      if (!tab || !stepNum || !title || !detail) return;
-
-      tabs.forEach(t => {
-        const isActive = t === tab;
-        t.classList.toggle('bg-white/8', isActive);
-        t.classList.toggle('ring-1', isActive);
-        t.classList.toggle('ring-white/12', isActive);
-        t.classList.toggle('hover:bg-white/4', !isActive);
-
-        const icon = t.querySelector('div:first-child') as HTMLElement;
-        if (icon) {
-          icon.classList.toggle('bg-white', isActive);
-          icon.classList.toggle('text-brand-900', isActive);
-          icon.classList.toggle('shadow-lg', isActive);
-          icon.classList.toggle('bg-white/8', !isActive);
-          icon.classList.toggle('text-neutral-400', !isActive);
-          icon.classList.toggle('group-hover:bg-white/12', !isActive);
-        }
-
-        const stepLabel = t.querySelector('span:first-of-type') as HTMLElement;
-        if (stepLabel) {
-          stepLabel.classList.toggle('text-brand-300', isActive);
-          stepLabel.classList.toggle('text-neutral-500', !isActive);
-        }
-
-        const h3 = t.querySelector('h3') as HTMLElement;
-        if (h3) {
-          h3.classList.toggle('text-white', isActive);
-          h3.classList.toggle('text-neutral-300', !isActive);
-        }
-
-        const p = t.querySelector('p') as HTMLElement;
-        if (p) {
-          p.classList.toggle('text-neutral-300', isActive);
-          p.classList.toggle('text-neutral-500', !isActive);
-        }
-      });
-
-      dots.forEach(d => {
-        const isActive = Number(d.dataset.dot) === step;
-        d.classList.toggle('bg-white', isActive);
-        d.classList.toggle('w-8', isActive);
-        d.classList.toggle('w-2', !isActive);
-        d.classList.toggle('bg-neutral-700', !isActive);
-      });
-
-      stepNum.textContent = String(step);
-      title.textContent = tab.dataset.title || '';
-      detail.textContent = tab.dataset.detail || '';
-    }
-
-    tabs.forEach(tab => tab.addEventListener('click', () => activateStep(Number(tab.dataset.step))));
-    dots.forEach(dot => dot.addEventListener('click', () => activateStep(Number(dot.dataset.dot))));
-
-    let currentStep = 1;
-    let autoTimer = setInterval(() => {
-      currentStep = currentStep >= 4 ? 1 : currentStep + 1;
-      activateStep(currentStep);
-    }, 6000);
-
-    const section = document.getElementById('how-we-work');
-    section?.addEventListener('click', () => {
-      clearInterval(autoTimer);
-      const clickedTab = document.querySelector('.hww-tab.bg-white\\/8');
-      if (clickedTab) currentStep = Number((clickedTab as HTMLElement).dataset.step);
-      autoTimer = setInterval(() => {
-        currentStep = currentStep >= 4 ? 1 : currentStep + 1;
-        activateStep(currentStep);
-      }, 15000);
-    });
-  </script>
-
-  <!-- ============ ILLUSTRATION BANNER WITH GRADIENT ============ -->
-  <section class="relative overflow-hidden w-full">
-    <!-- Top gradient fade -->
-    <div class="absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-white to-transparent" />
-    <!-- Bottom gradient fade -->
-    <div class="absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-neutral-950 to-transparent" />
-    
-    <div class="relative h-72 sm:h-80 lg:h-96 bg-neutral-950">
-      <img
-        src="/images/performance/home-attribution.webp"
-        alt="Illustrated attribution path connecting digital ads, landing pages, conversion events, qualified leads, and revenue"
-        class="absolute inset-0 h-full w-full object-cover opacity-60"
-        width="1920"
-        height="600"
-        loading="lazy"
-      />
-      <!-- Violet gradient overlay -->
-      <div class="absolute inset-0 bg-gradient-to-r from-brand-950/90 via-brand-900/50 to-brand-950/80" />
-      <!-- Decorative accent lines -->
-      <div class="absolute inset-0 bg-[linear-gradient(rgba(124,58,237,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(124,58,237,0.08)_1px,transparent_1px)] bg-[size:64px_64px]" />
-      
-      <!-- Overlay content -->
-      <div class="relative mx-auto flex h-full max-w-7xl items-center justify-between px-5 lg:px-8">
-        <div class="max-w-lg">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-200 ring-1 ring-white/20 backdrop-blur-sm">
-            <Icon name="lucide:bar-chart-3" class="size-3.5" />
-            Real-Time Analytics
-          </span>
-          <h2 class="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Every Campaign. Every Click.<br />Every Dirham Tracked.
-          </h2>
-          <p class="mt-3 text-base leading-relaxed text-brand-200/80">
-            Our proprietary dashboards give you complete visibility into campaign performance, audience behavior, and conversion attribution across all platforms.
-          </p>
-        </div>
-        <!-- Stats on right -->
-        <div class="hidden lg:grid grid-cols-2 gap-6">
-          {[
-            { value: '24/7', label: 'Live Monitoring' },
-            { value: '50+', label: 'KPIs Tracked' },
-            { value: '48hr', label: 'Avg. Launch Time' },
-            { value: '99.9%', label: 'Uptime' },
-          ].map((stat, i) => (
-            <div class="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm text-center">
-              <div class="font-display text-2xl font-bold text-white">{stat.value}</div>
-              <div class="mt-1 text-xs text-brand-300">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ REVIEWS STRIP ============ -->
-  <section class="border-y border-neutral-200/60 bg-neutral-50 py-20 lg:py-24">
-    <div class="mx-auto max-w-7xl px-5 lg:px-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="font-display text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
-            What Our Clients Say
-          </h2>
-          <div class="mt-3 flex items-center gap-2">
-            <div class="flex items-center gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Icon name="lucide:star" class="size-5 fill-amber-400 text-amber-400" />
-              ))}
-            </div>
-            <span class="text-sm font-medium text-neutral-500">
-              {avgRating} average from {reviews.length} reviews
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-8 flex gap-5 overflow-x-auto px-5 pb-4 lg:px-8 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div class="mx-auto flex max-w-7xl gap-5">
-        {reviews.map((review) => (
-          <div class="w-80 shrink-0 rounded-2xl border border-neutral-200 bg-white p-7 transition-all duration-300 hover:border-brand-200 hover:shadow-lg hover:shadow-brand-100/50 hover:-translate-y-1">
-            <div class="flex items-center gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Icon
-                  name="lucide:star"
-                  class={`size-4 ${i < Math.floor(review.rating) ? 'fill-amber-400 text-amber-400' : 'text-neutral-200'}`}
-                />
-              ))}
-            </div>
-            <p class="mt-4 text-sm leading-relaxed text-neutral-600 line-clamp-4">
-              "{review.text}"
-            </p>
-            <div class="mt-5 flex items-center gap-3">
-              <div class="flex size-10 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-700">
-                {review.name.charAt(0)}
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-neutral-800">{review.name}</p>
-                <p class="text-xs text-neutral-400">{review.source}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ AREAS SECTION ============ -->
-  <section class="relative overflow-hidden py-24 lg:py-32">
-    <!-- Decorative gradient blobs -->
-    <div class="pointer-events-none absolute inset-0">
-      <div class="absolute top-10 -right-20 size-72 rounded-full bg-brand-100/25 blur-[70px]" />
-      <div class="absolute bottom-0 left-1/3 size-56 rounded-full bg-brand-200/15 blur-[50px]" />
-    </div>
     <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
-      <div class="mx-auto max-w-2xl text-center">
+      <div class="lp-reveal mx-auto max-w-2xl text-center">
         <span class="section-label">
-          <Icon name="lucide:map-pin" class="size-3.5" />
-          UAE Coverage
+          <Icon name="lucide:calculator" class="size-3.5" />
+          Interactive model
         </span>
         <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
-          Areas We Serve
+          What could your budget return?
         </h2>
         <p class="mt-5 text-lg leading-relaxed text-neutral-500">
-          Performance marketing services across the UAE, from Abu Dhabi to Ras Al Khaimah. Local expertise, global standards.
+          Move the sliders to model your current paid media economics, then see the gap a structured optimisation programme typically closes.
         </p>
       </div>
 
-      <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {serviceAreas.map((area, i) => (
-          <a
-            href={areaUrl(area.slug)}
-            class={`card-hover group rounded-2xl border border-neutral-200 bg-white p-6 transition-all duration-300 animate-fade-up stagger-${Math.min(i + 1, 6)}`}
-          >
-            <div class="flex items-center gap-4">
-              <div class="flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-100">
-                <Icon name="lucide:map-pin" class="size-5" />
-              </div>
-              <div>
-                <h3 class="font-display text-base font-semibold text-neutral-900 group-hover:text-brand-700 transition-colors">{area.name}</h3>
-                <p class="text-xs text-neutral-400">{area.county}</p>
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
+      <div class="mt-14 grid gap-6 lg:grid-cols-5">
+        <!-- controls -->
+        <div class="lp-reveal lp-reveal-x rounded-3xl border border-neutral-200 bg-white p-7 shadow-[0_20px_60px_-40px_rgba(76,29,149,0.5)] lg:col-span-2 lg:p-8">
+          <h3 class="font-display text-lg font-semibold text-neutral-900">Your inputs</h3>
 
-  <!-- ============ WHY CHOOSE CLICKNX ============ -->
-  <section class="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
-    <!-- Decorative gradient blobs -->
-    <div class="pointer-events-none absolute inset-0">
-      <div class="absolute -top-40 right-1/4 size-96 rounded-full bg-brand-200/20 blur-[100px]" />
-      <div class="absolute -bottom-20 left-1/4 size-80 rounded-full bg-brand-300/15 blur-[80px]" />
-    </div>
-    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
-      <div class="grid lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <span class="section-label">
-            <Icon name="lucide:shield-check" class="size-3.5" />
-            Why CLICKNX
-          </span>
-          <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900">
-            Built for Results,<br />Not Promises
-          </h2>
-          <p class="mt-5 text-lg leading-relaxed text-neutral-500">
-            We do not sell brand awareness or vanity metrics. Every campaign we manage is tracked to the conversion level, every recommendation is backed by data, and every dirham of your budget is optimized for maximum return.
+          <div class="mt-8 space-y-9">
+            <div>
+              <div class="flex items-baseline justify-between">
+                <label for="lp-in-spend" class="text-sm font-medium text-neutral-700">Monthly ad spend</label>
+                <span id="lp-out-spend" class="font-display text-base font-bold text-brand-600">AED 30,000</span>
+              </div>
+              <input
+                id="lp-in-spend"
+                type="range"
+                min="5000"
+                max="200000"
+                step="1000"
+                value="30000"
+                class="lp-range mt-4"
+              />
+              <div class="mt-2 flex justify-between text-[10px] text-neutral-400"><span>AED 5K</span><span>AED 200K</span></div>
+            </div>
+
+            <div>
+              <div class="flex items-baseline justify-between">
+                <label for="lp-in-cvr" class="text-sm font-medium text-neutral-700">Landing page conversion rate</label>
+                <span id="lp-out-cvr" class="font-display text-base font-bold text-brand-600">2.0%</span>
+              </div>
+              <input
+                id="lp-in-cvr"
+                type="range"
+                min="0.5"
+                max="10"
+                step="0.1"
+                value="2"
+                class="lp-range mt-4"
+              />
+              <div class="mt-2 flex justify-between text-[10px] text-neutral-400"><span>0.5%</span><span>10%</span></div>
+            </div>
+
+            <div>
+              <div class="flex items-baseline justify-between">
+                <label for="lp-in-deal" class="text-sm font-medium text-neutral-700">Average deal value</label>
+                <span id="lp-out-deal" class="font-display text-base font-bold text-brand-600">AED 3,000</span>
+              </div>
+              <input
+                id="lp-in-deal"
+                type="range"
+                min="500"
+                max="100000"
+                step="500"
+                value="3000"
+                class="lp-range mt-4"
+              />
+              <div class="mt-2 flex justify-between text-[10px] text-neutral-400"><span>AED 500</span><span>AED 100K</span></div>
+            </div>
+          </div>
+
+          <p class="mt-8 border-t border-neutral-100 pt-5 text-[11px] leading-relaxed text-neutral-400">
+            Model assumes AED 6 average CPC and a 20% lead-to-close rate. The optimised scenario applies a 1.8× conversion
+            rate uplift and 25% lower CPC — the mid-range of what our CRO and account restructures have delivered. Directional
+            estimate, not a guarantee.
           </p>
         </div>
-        <div class="grid sm:grid-cols-2 gap-5">
-          {[
-            { icon: 'lucide:database', title: 'Data-Driven Decisions', desc: 'Every strategy is backed by analytics, not intuition.' },
-            { icon: 'lucide:eye', title: 'Full Transparency', desc: 'Real-time dashboards, weekly reports, no hidden fees.' },
-            { icon: 'lucide:zap', title: 'Fast Execution', desc: 'Campaigns live within 48 hours of strategy approval.' },
-            { icon: 'lucide:scale', title: 'Scalable Growth', desc: 'Proven frameworks that grow with your business.' },
-          ].map((item, i) => (
-            <div class={`rounded-2xl border border-neutral-200 bg-white p-7 transition-all duration-300 hover:border-brand-200 hover:shadow-lg hover:shadow-brand-100/30 animate-fade-up stagger-${i + 1}`}>
-              <div class="flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 mb-5">
-                <Icon name={item.icon} class="size-5" />
-              </div>
-              <h3 class="font-display text-base font-semibold text-neutral-900 mb-1.5">{item.title}</h3>
-              <p class="text-sm text-neutral-500">{item.desc}</p>
+
+        <!-- results -->
+        <div class="lp-reveal lp-reveal-xr relative overflow-hidden rounded-3xl bg-neutral-950 p-7 lg:col-span-3 lg:p-9" style="--lp-delay:120ms">
+          <div class="pointer-events-none absolute inset-0">
+            <div class="lp-aurora size-96 -right-24 -top-24 bg-brand-600/25" style="animation-duration:22s"></div>
+          </div>
+
+          <div class="relative">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display text-lg font-semibold text-white">Projected 12-month impact</h3>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-white/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+                <span class="size-1.5 animate-pulse rounded-full bg-brand-400"></span>
+                Live estimate
+              </span>
             </div>
-          ))}
+
+            <div class="mt-8 grid grid-cols-2 gap-4">
+              <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
+                <p class="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">Current ROAS</p>
+                <p id="lp-res-roas-now" class="mt-2 font-display text-3xl font-bold text-neutral-300">2.2x</p>
+              </div>
+              <div class="relative overflow-hidden rounded-2xl border border-brand-400/30 bg-brand-500/10 p-5">
+                <p class="text-[10px] font-semibold uppercase tracking-widest text-brand-300">With CLICKNX</p>
+                <p id="lp-res-roas-new" class="mt-2 font-display text-3xl font-bold text-white">5.3x</p>
+              </div>
+            </div>
+
+            <!-- comparison bars -->
+            <div class="mt-8 space-y-5">
+              <div>
+                <div class="flex items-baseline justify-between text-xs">
+                  <span class="text-neutral-500">Monthly revenue — today</span>
+                  <span id="lp-res-rev-now" class="font-display text-sm font-semibold text-neutral-300">AED 0</span>
+                </div>
+                <div class="mt-2 h-3 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div id="lp-bar-now" class="h-full rounded-full bg-neutral-600 transition-[width] duration-700 ease-out" style="width:35%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-baseline justify-between text-xs">
+                  <span class="text-brand-300">Monthly revenue — optimised</span>
+                  <span id="lp-res-rev-new" class="font-display text-sm font-semibold text-white">AED 0</span>
+                </div>
+                <div class="mt-2 h-3 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div
+                    id="lp-bar-new"
+                    class="h-full rounded-full bg-gradient-to-r from-brand-500 via-brand-400 to-cyan-400 transition-[width] duration-700 ease-out"
+                    style="width:100%"
+                  >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-3 gap-3">
+              {[
+                { id: 'lp-res-clicks', label: 'Clicks / mo' },
+                { id: 'lp-res-leads', label: 'Leads / mo' },
+                { id: 'lp-res-cpl', label: 'Cost / lead' },
+              ].map((m) => (
+                <div class="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3.5 text-center">
+                  <p id={m.id} class="font-display text-lg font-bold text-white">—</p>
+                  <p class="mt-0.5 text-[10px] uppercase tracking-wider text-neutral-500">{m.label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div class="mt-8 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
+              <p class="text-xs text-neutral-400">Additional annual revenue at the optimised scenario</p>
+              <p id="lp-res-uplift" class="mt-1.5 font-display text-3xl font-bold tracking-tight text-white">AED 0</p>
+              <a
+                href={contactUrl()}
+                class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition-transform duration-300 hover:-translate-y-0.5"
+              >
+                Validate this against your account
+                <Icon name="lucide:arrow-right" class="size-4" />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ CTA BANNER ============ -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900">
-    <div class="pointer-events-none absolute inset-0">
-      <div class="absolute -top-20 -right-20 size-64 rounded-full bg-brand-700/20 blur-3xl" />
-      <div class="absolute -bottom-10 -left-10 size-48 rounded-full bg-brand-600/10 blur-2xl" />
+  <!-- ============================================================
+       7 — TESTIMONIALS · dual counter-scrolling marquees
+       ============================================================ -->
+  <section id="lp-testimonials" class="relative overflow-hidden bg-neutral-50 py-24 lg:py-32">
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="lp-reveal flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+        <div>
+          <span class="section-label">
+            <Icon name="lucide:quote" class="size-3.5" />
+            Client voices
+          </span>
+          <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+            {avgRating} out of 5, <span class="text-neutral-400">consistently</span>
+          </h2>
+        </div>
+        <div class="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-5 py-3.5">
+          <div class="flex items-center gap-0.5">
+            {Array.from({ length: 5 }).map(() => (
+              <StarIcon class="size-4" />
+            ))}
+          </div>
+          <span class="text-sm font-medium text-neutral-500">{reviews.length} verified reviews</span>
+        </div>
+      </div>
     </div>
 
-    <div class="relative mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-      <div class="mx-auto max-w-3xl text-center">
-        <h2 class="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">Ready to Scale?</h2>
-        <p class="mt-5 text-lg leading-relaxed text-brand-200/90 max-w-xl mx-auto">
-          Get a free strategy consultation. We will analyze your current marketing and show you exactly where the growth opportunities are.
+    <div class="mt-14 space-y-5">
+      {[0, 1].map((row) => (
+        <div class="lp-marquee-wrap">
+          <div class={`lp-marquee gap-5 ${row === 1 ? 'lp-marquee-rev' : ''}`} style={`--speed:${row === 0 ? 58 : 68}s`}>
+            {[...reviews, ...reviews].map((review, idx) => {
+              const shifted = row === 1 ? reviews[(idx + 3) % reviews.length] : review;
+              return (
+                <figure class="flex w-[21rem] shrink-0 flex-col rounded-3xl border border-neutral-200 bg-white p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-brand-200 hover:shadow-[0_24px_50px_-28px_rgba(76,29,149,0.4)]">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, s) => (
+                        <StarIcon class="size-3.5" filled={s < Math.floor(shifted.rating)} />
+                      ))}
+                    </div>
+                    <Icon name="lucide:quote" class="size-6 text-neutral-100" />
+                  </div>
+                  <blockquote class="mt-4 flex-1 text-sm leading-relaxed text-neutral-600 line-clamp-5">
+                    {shifted.text}
+                  </blockquote>
+                  <figcaption class="mt-5 flex items-center gap-3 border-t border-neutral-100 pt-4">
+                    <span class="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-xs font-bold text-white">
+                      {shifted.name.charAt(0)}
+                    </span>
+                    <span>
+                      <span class="block text-sm font-semibold text-neutral-800">{shifted.name}</span>
+                      <span class="block text-[11px] text-neutral-400">via {shifted.source}</span>
+                    </span>
+                  </figcaption>
+                </figure>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============================================================
+       8 — COVERAGE · interactive UAE map explorer
+       ============================================================ -->
+  <section id="lp-coverage" class="lp-noise relative overflow-hidden bg-neutral-950 py-24 lg:py-32">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="lp-aurora size-[34rem] right-[-8rem] top-10 bg-brand-700/25" style="animation-duration:28s"></div>
+      <div class="lp-aurora size-[24rem] left-10 bottom-0 bg-cyan-600/15" style="animation-duration:22s;animation-delay:-9s"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="lp-reveal mx-auto max-w-2xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-300 backdrop-blur-md">
+          <Icon name="lucide:globe" class="size-3.5" />
+          UAE coverage
+        </span>
+        <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+          Local intent, mapped
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-neutral-400">
+          Select an emirate to see how we approach it. Search behaviour, competition and cost per click differ sharply across the country.
         </p>
-        <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <a
-            href={contactUrl()}
-            class="group inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-brand-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-          >
-            Get Your Free Audit
-            <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </a>
-          <a
-            href="/services/"
-            class="inline-flex items-center gap-2.5 rounded-xl border border-white/20 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:bg-white/10"
-          >
-            Explore Services
-          </a>
+      </div>
+
+      <div class="mt-14 grid gap-6 lg:grid-cols-12">
+        <!-- map -->
+        <div class="lp-reveal lp-reveal-s relative overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.02] p-6 lg:col-span-7">
+          <div class="relative aspect-[16/10] w-full">
+            <!-- Dot-matrix landmass -->
+            <svg
+              class="pointer-events-none absolute inset-0 size-full"
+              viewBox="0 0 160 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <radialGradient id="lp-dot-glow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.35" />
+                  <stop offset="100%" stop-color="#a78bfa" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <circle id="lp-map-glow" cx="0" cy="0" r="26" fill="url(#lp-dot-glow)" opacity="0" />
+              <g id="lp-map-dots">
+                {mapDots.map((dot) => (
+                  <circle class="lp-dot" cx={dot.x} cy={dot.y} r="0.72" fill="#a78bfa" opacity="0.24" />
+                ))}
+              </g>
+            </svg>
+
+            {areaPins.map((pin, i) => (
+              <button
+                type="button"
+                class={`lp-map-pin group absolute z-10 -translate-x-1/2 -translate-y-1/2 ${i === 0 ? 'is-active' : ''}`}
+                style={`left:${pin.x}%;top:${pin.y}%`}
+                data-area={pin.slug}
+                data-sx={svgX(pin.lng)}
+                data-sy={projectY(pin.lat)}
+                aria-label={`Show details for ${pin.name}`}
+              >
+                <span class="relative flex size-6 items-center justify-center">
+                  <span class="lp-pin-ring absolute size-4 rounded-full bg-brand-400/40 opacity-0"></span>
+                  <span
+                    class={`lp-pin relative block rounded-full ring-2 transition-all duration-300 ${i === 0 ? 'is-active size-2.5 bg-white ring-brand-400/70' : 'size-1.5 bg-neutral-400 ring-transparent group-hover:bg-white group-hover:ring-brand-400/50'}`}
+                  ></span>
+                </span>
+                <span
+                  class={`lp-pin-label pointer-events-none absolute left-1/2 top-full -translate-x-1/2 whitespace-nowrap rounded-md border border-white/10 bg-neutral-900/90 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100 ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
+                >
+                  {pin.name}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <p class="mt-4 text-center text-[11px] text-neutral-600">
+            Pins plotted from real coordinates · {serviceAreas.length} locations served
+          </p>
+        </div>
+
+        <!-- detail panel -->
+        <div class="lp-reveal lp-reveal-xr lg:col-span-5" style="--lp-delay:120ms">
+          <div class="flex h-full flex-col rounded-3xl border border-white/[0.08] bg-white/[0.03] p-7 backdrop-blur-sm">
+            <div class="flex flex-wrap gap-1.5">
+              {areaPins.map((area, i) => (
+                <button
+                  type="button"
+                  class={`lp-area-chip rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all duration-300 ${i === 0 ? 'bg-white text-neutral-900' : 'bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white'}`}
+                  data-area={area.slug}
+                  aria-pressed={i === 0 ? 'true' : 'false'}
+                >
+                  {area.name}
+                </button>
+              ))}
+            </div>
+
+            <div class="mt-7 flex-1">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-400" id="lp-area-county">
+                {areaPins[0].county}
+              </p>
+              <h3 class="mt-2 font-display text-3xl font-semibold tracking-tight text-white" id="lp-area-name">
+                {areaPins[0].name}
+              </h3>
+              <p class="mt-4 text-sm leading-relaxed text-neutral-400" id="lp-area-desc">
+                {areaPins[0].description}
+              </p>
+
+              <dl class="mt-7 grid grid-cols-2 gap-3">
+                <div class="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
+                  <dt class="text-[10px] uppercase tracking-wider text-neutral-500">Population</dt>
+                  <dd class="mt-1 font-display text-lg font-semibold text-white" id="lp-area-pop">1.5M</dd>
+                </div>
+                <div class="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
+                  <dt class="text-[10px] uppercase tracking-wider text-neutral-500">Services live</dt>
+                  <dd class="mt-1 font-display text-lg font-semibold text-white">{serviceTypes.length}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <a
+              href={areaUrl(areaPins[0].slug)}
+              id="lp-area-link"
+              class="mt-7 inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/10"
+            >
+              <span id="lp-area-cta">Explore Abu Dhabi</span>
+              <Icon name="lucide:arrow-right" class="size-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       9 — DIFFERENTIATORS · accordion with synced visual
+       ============================================================ -->
+  <!-- No `overflow-hidden` here either — the synced visual is sticky. -->
+  <section id="lp-why" class="relative bg-white py-24 lg:py-32">
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-14 lg:grid-cols-2 lg:gap-20">
+        <div>
+          <div class="lp-reveal">
+            <span class="section-label">
+              <Icon name="lucide:shield-check" class="size-3.5" />
+              Why CLICKNX
+            </span>
+            <h2 class="mt-5 font-display text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+              Built for results,<br /><span class="text-neutral-400">not retainers.</span>
+            </h2>
+            <p class="mt-5 max-w-md text-lg leading-relaxed text-neutral-500">
+              We do not sell impressions or reach. Every engagement is tracked to the conversion, and every claim we make is
+              one you can audit in your own account.
+            </p>
+          </div>
+
+          <div class="mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
+            {differentiators.map((item, i) => (
+              <div class={`lp-acc lp-reveal ${i === 0 ? 'is-open' : ''}`} data-acc={i} style={`--lp-delay:${i * 70}ms`}>
+                <button
+                  type="button"
+                  class="lp-acc-trigger flex w-full items-center gap-4 py-5 text-left"
+                  aria-expanded={i === 0 ? 'true' : 'false'}
+                >
+                  <span class={`flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-300 ${i === 0 ? 'bg-brand-600 text-white' : 'bg-neutral-100 text-neutral-500'}`}>
+                    <Icon name={item.icon} class="size-4.5" />
+                  </span>
+                  <span class="flex-1 font-display text-lg font-semibold tracking-tight text-neutral-900">{item.title}</span>
+                  <Icon
+                    name="lucide:chevron-down"
+                    class={`lp-acc-chevron size-5 shrink-0 text-neutral-400 transition-transform duration-300 ${i === 0 ? 'rotate-180' : ''}`}
+                  />
+                </button>
+                <div class="lp-acc-body">
+                  <div>
+                    <p class="pb-6 pl-14 pr-4 text-sm leading-relaxed text-neutral-500">{item.body}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- synced visual -->
+        <div class="lp-reveal lp-reveal-xr lg:sticky lg:top-28 lg:self-start" style="--lp-delay:120ms">
+          <div class="relative overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-950">
+            <div class="relative aspect-[4/3]">
+              {differentiators.map((item, i) => (
+                <img
+                  src={item.image}
+                  alt={item.alt}
+                  class={`lp-acc-img absolute inset-0 size-full object-cover transition-all duration-700 ${i === 0 ? 'opacity-90 scale-100' : 'opacity-0 scale-105'}`}
+                  data-img={i}
+                  width="880"
+                  height="660"
+                  loading="lazy"
+                />
+              ))}
+              <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent"></div>
+            </div>
+
+            <div class="grid grid-cols-3 divide-x divide-white/[0.07] border-t border-white/[0.07]">
+              {[
+                { v: `${serviceTypes.length}`, l: 'Specialisms' },
+                { v: `${serviceAreas.length}`, l: 'Locations' },
+                { v: '48hr', l: 'To launch' },
+              ].map((s) => (
+                <div class="p-5 text-center">
+                  <p class="font-display text-xl font-bold text-white">{s.v}</p>
+                  <p class="mt-0.5 text-[10px] uppercase tracking-wider text-neutral-500">{s.l}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       10 — CTA · rotating conic glow + magnetic button
+       ============================================================ -->
+  <section id="lp-cta" class="relative overflow-hidden bg-neutral-950 py-24 lg:py-32">
+    <div class="lp-grid pointer-events-none absolute inset-0 opacity-60"></div>
+    <div class="pointer-events-none absolute inset-0">
+      <div class="lp-aurora size-[40rem] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-700/25" style="animation-duration:26s"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="lp-conic lp-reveal lp-reveal-s overflow-hidden rounded-[2rem] p-px" style="--lp-conic-bg:#0a0a0a">
+        <div class="relative overflow-hidden rounded-[2rem] bg-neutral-950 px-7 py-16 text-center sm:px-14 lg:py-20">
+          <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-brand-900/25 via-transparent to-transparent"></div>
+
+          <div class="relative">
+            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-300 backdrop-blur-md">
+              <span class="lp-live flex size-1.5 rounded-full bg-brand-400 text-brand-400"></span>
+              Accepting new accounts
+            </span>
+
+            <h2 class="mt-7 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Let's find the leak<br />
+              <span class="lp-shine">in your funnel</span>
+            </h2>
+
+            <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-neutral-400">
+              A free audit of your ad accounts, tracking setup and landing pages. You get the findings and the roadmap
+              whether or not you work with us.
+            </p>
+
+            <div class="mt-10 flex flex-col items-center justify-center gap-3.5 sm:flex-row">
+              <a
+                href={contactUrl()}
+                data-magnetic
+                class="lp-magnetic lp-sheen group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-8 py-4 text-sm font-semibold text-neutral-900 shadow-[0_20px_45px_-18px_rgba(255,255,255,0.55)]"
+              >
+                <span class="lp-sheen-bar"></span>
+                Book your free audit
+                <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </a>
+              <a
+                href={business.phoneHref}
+                class="inline-flex items-center justify-center gap-2.5 rounded-2xl border border-white/12 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/25 hover:bg-white/10"
+              >
+                <Icon name="lucide:phone" class="size-4 text-brand-300" />
+                {business.phone}
+              </a>
+            </div>
+
+            <div class="mt-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-xs text-neutral-500">
+              {['No lock-in contracts', 'You own every account', 'Reporting you can audit'].map((t) => (
+                <span class="inline-flex items-center gap-1.5">
+                  <Icon name="lucide:circle-check" class="size-3.5 text-brand-400" />
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* Uniform grid when a service filter is applied */
+  @media (min-width: 1024px) {
+    #lp-svc-grid.is-uniform > [data-card] {
+      grid-column: span 2 / span 2;
+      grid-row: span 1 / span 1;
+    }
+  }
+  #lp-svc-grid > [data-card].is-hidden {
+    display: none;
+  }
+  /* Active map pin ring */
+  .lp-map-pin .lp-pin-ring {
+    animation: lpPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  .lp-map-pin.is-active .lp-pin-ring {
+    opacity: 1;
+  }
+  /* Landmass dots brighten around the selected emirate */
+  .lp-dot {
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #lp-map-glow {
+    transition:
+      opacity 0.6s ease,
+      cx 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      cy 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lp-dot,
+    #lp-map-glow {
+      transition: none;
+    }
+    .lp-map-pin .lp-pin-ring {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // Landing page interactions
+  // ============================================================
+  // Scroll progress, reveal, count-up, spotlight and magnetic buttons are
+  // shared with the other pages.
+  import { prefersReducedMotion as reduceMotion } from '../scripts/motion';
+
+  // ---------- Hero ambient glow ----------
+  const hero = document.getElementById('lp-hero');
+  const heroGlow = document.getElementById('lp-hero-glow');
+  if (hero && heroGlow && !reduceMotion) {
+    hero.addEventListener('pointermove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      heroGlow.style.setProperty('--hx', `${e.clientX - rect.left}px`);
+      heroGlow.style.setProperty('--hy', `${e.clientY - rect.top}px`);
+      heroGlow.style.opacity = '1';
+    });
+    hero.addEventListener('pointerleave', () => {
+      heroGlow.style.opacity = '0';
+    });
+  }
+
+  // ---------- Hero dashboard channel tabs ----------
+  const chTabs = document.querySelectorAll<HTMLButtonElement>('.lp-ch-tab');
+  const chart = document.getElementById('lp-chart');
+  const roasEl = document.getElementById('lp-roas');
+  const deltaEl = document.getElementById('lp-delta')?.querySelector('span');
+  const spendEl = document.getElementById('lp-spend');
+  const leadsEl = document.getElementById('lp-leads');
+  const cplEl = document.getElementById('lp-cpl');
+
+  function selectChannel(tab: HTMLButtonElement) {
+    chTabs.forEach((t) => {
+      const active = t === tab;
+      t.setAttribute('aria-pressed', String(active));
+      t.classList.toggle('bg-white/10', active);
+      t.classList.toggle('text-white', active);
+      t.classList.toggle('ring-1', active);
+      t.classList.toggle('ring-white/15', active);
+      t.classList.toggle('text-neutral-500', !active);
+      t.classList.toggle('hover:bg-white/5', !active);
+      t.classList.toggle('hover:text-neutral-300', !active);
+    });
+
+    if (roasEl) roasEl.textContent = `${tab.dataset.roas}x`;
+    if (deltaEl) deltaEl.textContent = tab.dataset.delta || '';
+    if (spendEl) spendEl.textContent = tab.dataset.spend || '';
+    if (leadsEl) leadsEl.textContent = tab.dataset.leads || '';
+    if (cplEl) cplEl.textContent = tab.dataset.cpl || '';
+
+    const bars = (tab.dataset.bars || '').split(',');
+    chart?.querySelectorAll<HTMLElement>('.lp-bar').forEach((bar, i) => {
+      bar.style.setProperty('--h', `${bars[i] || 50}%`);
+      if (reduceMotion) return;
+      bar.style.setProperty('--lp-delay', `${i * 45}ms`);
+      bar.style.animation = 'none';
+      void bar.offsetWidth; // force reflow to restart the animation
+      bar.style.animation = '';
+    });
+  }
+
+  chTabs.forEach((tab) => tab.addEventListener('click', () => selectChannel(tab)));
+
+  // ---------- Service filter ----------
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.lp-filter');
+  const svcGrid = document.getElementById('lp-svc-grid');
+  const svcEmpty = document.getElementById('lp-svc-empty');
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.filter || 'all';
+
+      filterBtns.forEach((b) => {
+        const active = b === btn;
+        b.setAttribute('aria-pressed', String(active));
+        b.classList.toggle('border-neutral-900', active);
+        b.classList.toggle('bg-neutral-900', active);
+        b.classList.toggle('text-white', active);
+        b.classList.toggle('border-neutral-200', !active);
+        b.classList.toggle('bg-white', !active);
+        b.classList.toggle('text-neutral-500', !active);
+        b.classList.toggle('hover:border-neutral-400', !active);
+        b.classList.toggle('hover:text-neutral-900', !active);
+      });
+
+      svcGrid?.classList.toggle('is-uniform', key !== 'all');
+
+      let shown = 0;
+      svcGrid?.querySelectorAll<HTMLElement>('[data-card]').forEach((card, i) => {
+        const match = key === 'all' || card.dataset.cat === key;
+        card.classList.toggle('is-hidden', !match);
+        if (match) {
+          shown++;
+          if (!reduceMotion) {
+            card.classList.remove('is-in');
+            card.style.setProperty('--lp-delay', `${Math.min(i, 8) * 45}ms`);
+            requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('is-in')));
+          }
+        }
+      });
+
+      svcEmpty?.classList.toggle('hidden', shown > 0);
+    });
+  });
+
+  // ---------- Process: scroll-driven step indicator ----------
+  const steps = document.querySelectorAll<HTMLElement>('.lp-step');
+  const stepNav = document.querySelectorAll<HTMLButtonElement>('.lp-step-nav');
+  const stepNumEl = document.getElementById('lp-step-num');
+
+  function setActiveStep(index: number) {
+    if (stepNumEl) stepNumEl.textContent = String(index + 1).padStart(2, '0');
+    stepNav.forEach((nav, i) => {
+      const fill = nav.querySelector<HTMLElement>('.lp-step-fill');
+      const label = nav.querySelector<HTMLElement>('.lp-step-label');
+      if (fill) {
+        fill.classList.toggle('h-full', i === index);
+        fill.classList.toggle('h-0', i !== index);
+      }
+      if (label) {
+        label.classList.toggle('text-white', i === index);
+        label.classList.toggle('text-neutral-600', i !== index);
+      }
+    });
+    steps.forEach((s, i) => {
+      s.classList.toggle('border-white/15', i === index);
+      s.classList.toggle('bg-white/[0.06]', i === index);
+      s.classList.toggle('border-white/[0.08]', i !== index);
+      s.classList.toggle('bg-white/[0.03]', i !== index);
+    });
+  }
+
+  if (steps.length) {
+    const stepObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveStep(Number((entry.target as HTMLElement).dataset.step || 0));
+        });
+      },
+      { threshold: 0.55, rootMargin: '-20% 0px -25% 0px' }
+    );
+    steps.forEach((s) => stepObserver.observe(s));
+
+    stepNav.forEach((nav) => {
+      nav.addEventListener('click', () => {
+        const target = steps[Number(nav.dataset.goto || 0)];
+        target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      });
+    });
+  }
+
+  // ---------- ROI calculator ----------
+  const CPC = 6;
+  const CLOSE_RATE = 0.2;
+  const CVR_UPLIFT = 1.8;
+  const CPC_DISCOUNT = 0.75;
+
+  const inSpend = document.getElementById('lp-in-spend') as HTMLInputElement | null;
+  const inCvr = document.getElementById('lp-in-cvr') as HTMLInputElement | null;
+  const inDeal = document.getElementById('lp-in-deal') as HTMLInputElement | null;
+
+  const aed = (n: number) => `AED ${Math.round(n).toLocaleString('en-US')}`;
+  const compact = (n: number) =>
+    n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}K` : String(Math.round(n));
+
+  function paintRange(el: HTMLInputElement | null) {
+    if (!el) return;
+    const min = Number(el.min);
+    const max = Number(el.max);
+    const pct = ((Number(el.value) - min) / (max - min)) * 100;
+    el.style.setProperty('--fill', `${pct}%`);
+  }
+
+  function setText(id: string, value: string) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function recalc() {
+    if (!inSpend || !inCvr || !inDeal) return;
+
+    const spend = Number(inSpend.value);
+    const cvr = Number(inCvr.value) / 100;
+    const deal = Number(inDeal.value);
+
+    [inSpend, inCvr, inDeal].forEach(paintRange);
+
+    setText('lp-out-spend', aed(spend));
+    setText('lp-out-cvr', `${Number(inCvr.value).toFixed(1)}%`);
+    setText('lp-out-deal', aed(deal));
+
+    // current scenario
+    const clicks = spend / CPC;
+    const leads = clicks * cvr;
+    const revenue = leads * CLOSE_RATE * deal;
+    const roas = revenue / spend;
+
+    // optimised scenario
+    const clicksNew = spend / (CPC * CPC_DISCOUNT);
+    const leadsNew = clicksNew * Math.min(cvr * CVR_UPLIFT, 0.35);
+    const revenueNew = leadsNew * CLOSE_RATE * deal;
+    const roasNew = revenueNew / spend;
+
+    setText('lp-res-roas-now', `${roas.toFixed(1)}x`);
+    setText('lp-res-roas-new', `${roasNew.toFixed(1)}x`);
+    setText('lp-res-rev-now', aed(revenue));
+    setText('lp-res-rev-new', aed(revenueNew));
+    setText('lp-res-clicks', compact(clicks));
+    setText('lp-res-leads', compact(leads));
+    setText('lp-res-cpl', aed(leads > 0 ? spend / leads : 0));
+    setText('lp-res-uplift', aed(Math.max(revenueNew - revenue, 0) * 12));
+
+    const peak = Math.max(revenue, revenueNew, 1);
+    const barNow = document.getElementById('lp-bar-now');
+    const barNew = document.getElementById('lp-bar-new');
+    if (barNow) barNow.style.width = `${Math.max((revenue / peak) * 100, 3)}%`;
+    if (barNew) barNew.style.width = `${Math.max((revenueNew / peak) * 100, 3)}%`;
+  }
+
+  [inSpend, inCvr, inDeal].forEach((el) => el?.addEventListener('input', recalc));
+  recalc();
+
+  // ---------- Coverage map explorer ----------
+  // Area data is injected by the inline `define:vars` script at the top of the page.
+  interface AreaInfo {
+    name: string;
+    county: string;
+    description: string;
+    population: number;
+    url: string;
+  }
+  declare global {
+    interface Window {
+      __CLICKNX_AREAS__?: Record<string, AreaInfo>;
+    }
+  }
+
+  const areaChips = document.querySelectorAll<HTMLButtonElement>('.lp-area-chip');
+  const areaPinsEls = document.querySelectorAll<HTMLButtonElement>('.lp-map-pin');
+  const mapDotEls = document.querySelectorAll<SVGCircleElement>('.lp-dot');
+
+  function selectArea(slug: string) {
+    areaChips.forEach((chip) => {
+      const active = chip.dataset.area === slug;
+      chip.setAttribute('aria-pressed', String(active));
+      chip.classList.toggle('bg-white', active);
+      chip.classList.toggle('text-neutral-900', active);
+      chip.classList.toggle('bg-white/5', !active);
+      chip.classList.toggle('text-neutral-400', !active);
+      chip.classList.toggle('hover:bg-white/10', !active);
+      chip.classList.toggle('hover:text-white', !active);
+    });
+
+    let focusX = 0;
+    let focusY = 0;
+
+    areaPinsEls.forEach((pinBtn) => {
+      const active = pinBtn.dataset.area === slug;
+      pinBtn.classList.toggle('is-active', active);
+
+      const dot = pinBtn.querySelector<HTMLElement>('.lp-pin');
+      dot?.classList.toggle('is-active', active);
+      dot?.classList.toggle('size-2.5', active);
+      dot?.classList.toggle('bg-white', active);
+      dot?.classList.toggle('ring-brand-400/70', active);
+      dot?.classList.toggle('size-1.5', !active);
+      dot?.classList.toggle('bg-neutral-400', !active);
+      dot?.classList.toggle('ring-transparent', !active);
+
+      pinBtn.querySelector('.lp-pin-label')?.classList.toggle('opacity-100', active);
+      pinBtn.querySelector('.lp-pin-label')?.classList.toggle('opacity-0', !active);
+
+      if (active) {
+        focusX = Number(pinBtn.dataset.sx || 0);
+        focusY = Number(pinBtn.dataset.sy || 0);
+      }
+    });
+
+    // Light the landmass around the selected emirate.
+    const glow = document.getElementById('lp-map-glow');
+    if (glow) {
+      glow.setAttribute('cx', String(focusX));
+      glow.setAttribute('cy', String(focusY));
+      glow.setAttribute('opacity', '1');
+    }
+    mapDotEls.forEach((d) => {
+      const dx = Number(d.getAttribute('cx')) - focusX;
+      const dy = Number(d.getAttribute('cy')) - focusY;
+      const falloff = Math.max(0, 1 - Math.hypot(dx, dy) / 32);
+      d.setAttribute('opacity', String((0.2 + 0.75 * falloff * falloff).toFixed(3)));
+    });
+
+    const info = window.__CLICKNX_AREAS__?.[slug];
+    if (!info) return;
+
+    setText('lp-area-name', info.name);
+    setText('lp-area-county', info.county);
+    setText('lp-area-desc', info.description);
+    setText('lp-area-pop', info.population >= 1000000
+      ? `${(info.population / 1000000).toFixed(1)}M`
+      : `${Math.round(info.population / 1000)}K`);
+    setText('lp-area-cta', `Explore ${info.name}`);
+    const link = document.getElementById('lp-area-link') as HTMLAnchorElement | null;
+    if (link) link.href = info.url;
+  }
+
+  areaChips.forEach((chip) => chip.addEventListener('click', () => selectArea(chip.dataset.area || '')));
+  areaPinsEls.forEach((pinBtn) => pinBtn.addEventListener('click', () => selectArea(pinBtn.dataset.area || '')));
+
+  // Seed the dot falloff for whichever emirate is marked active in the markup.
+  const initialArea = document.querySelector<HTMLButtonElement>('.lp-map-pin.is-active')?.dataset.area;
+  if (initialArea) selectArea(initialArea);
+
+  // ---------- Differentiator accordion ----------
+  const accItems = document.querySelectorAll<HTMLElement>('.lp-acc');
+  const accImages = document.querySelectorAll<HTMLElement>('.lp-acc-img');
+
+  accItems.forEach((item) => {
+    const trigger = item.querySelector<HTMLButtonElement>('.lp-acc-trigger');
+    trigger?.addEventListener('click', () => {
+      const index = Number(item.dataset.acc || 0);
+      const alreadyOpen = item.classList.contains('is-open');
+
+      accItems.forEach((other) => {
+        const open = other === item && !alreadyOpen;
+        other.classList.toggle('is-open', open);
+        other.querySelector('.lp-acc-trigger')?.setAttribute('aria-expanded', String(open));
+        other.querySelector('.lp-acc-chevron')?.classList.toggle('rotate-180', open);
+        const badge = other.querySelector<HTMLElement>('.lp-acc-trigger > span:first-child');
+        badge?.classList.toggle('bg-brand-600', open);
+        badge?.classList.toggle('text-white', open);
+        badge?.classList.toggle('bg-neutral-100', !open);
+        badge?.classList.toggle('text-neutral-500', !open);
+      });
+
+      if (!alreadyOpen) {
+        accImages.forEach((img, i) => {
+          const active = i === index;
+          img.classList.toggle('opacity-90', active);
+          img.classList.toggle('scale-100', active);
+          img.classList.toggle('opacity-0', !active);
+          img.classList.toggle('scale-105', !active);
+        });
+      }
+    });
+  });
+</script>

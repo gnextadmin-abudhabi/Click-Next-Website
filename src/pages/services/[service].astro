@@ -5,7 +5,6 @@ import { serviceTypes, getServiceBySlug } from '../../data/serviceTypes';
 import { serviceAreas, getAreaBySlug } from '../../data/serviceAreas';
 import { serviceUrl, areaUrl, comboUrl, contactUrl } from '../../lib/urls';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getServiceFaqs, getGlobalFaqs } from '../../data/seoContent';
 import { serviceVisuals } from '../../data/serviceVisuals';
 
@@ -70,13 +69,6 @@ const faqSchema = {
 ---
 
 <BaseLayout title={pageTitle} description={metaDescription} schema={schema}>
-  <Breadcrumbs
-    crumbs={[
-      { label: 'Services', href: '/services/' },
-      { label: service.name },
-    ]}
-  />
-
   <!-- ============ HERO WITH CONTACT FORM ============ -->
   <section class="relative overflow-hidden bg-neutral-950 py-16 lg:py-24">
     <!-- Background image -->

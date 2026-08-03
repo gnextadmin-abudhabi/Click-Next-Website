@@ -401,3 +401,343 @@
     border-color: rgba(255, 255, 255, 0.35);
   }
 }
+
+/* ============================================================
+   Landing Page — Motion & Interaction System
+   All classes are `.lp-*` prefixed so other pages are unaffected.
+   ============================================================ */
+
+@keyframes lpAurora {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  33%  { transform: translate3d(7%, -5%, 0) scale(1.15); }
+  66%  { transform: translate3d(-6%, 6%, 0) scale(0.92); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes lpMarquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes lpMarqueeRev {
+  from { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes lpGradientPan {
+  to { background-position: 200% center; }
+}
+
+@keyframes lpBarGrow {
+  from { height: 6%; opacity: 0; }
+  to   { height: var(--h, 50%); opacity: 1; }
+}
+
+@keyframes lpDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes lpSpin {
+  to { transform: rotate(1turn); }
+}
+
+@keyframes lpPing {
+  0%   { transform: scale(0.7); opacity: 0.85; }
+  70%  { transform: scale(2.6); opacity: 0; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@keyframes lpFloatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+@keyframes lpBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+@keyframes lpSheen {
+  from { transform: translateX(-120%) skewX(-18deg); }
+  to   { transform: translateX(320%) skewX(-18deg); }
+}
+
+@layer components {
+  /* --- Scroll reveal --- */
+  .lp-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1) var(--lp-delay, 0ms),
+      transform 0.85s cubic-bezier(0.22, 1, 0.36, 1) var(--lp-delay, 0ms);
+    will-change: transform, opacity;
+  }
+  .lp-reveal-x  { transform: translateX(-36px); }
+  .lp-reveal-xr { transform: translateX(36px); }
+  .lp-reveal-s  { transform: scale(0.94); }
+  .lp-reveal.is-in { opacity: 1; transform: none; }
+
+  /* Below `lg` these elements are full-width, so a horizontal start offset
+     would push past the viewport and create a page-level scrollbar. Fall back
+     to the vertical reveal until there is room either side. */
+  @media (max-width: 1023px) {
+    .lp-reveal-x,
+    .lp-reveal-xr {
+      transform: translateY(30px);
+    }
+  }
+
+  /* --- Aurora blobs --- */
+  .lp-aurora {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    will-change: transform;
+    animation: lpAurora 24s ease-in-out infinite;
+  }
+
+  /* --- Fine grain / noise overlay --- */
+  .lp-noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.22;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  /* --- Masked grid backdrop --- */
+  .lp-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+    background-size: 58px 58px;
+    -webkit-mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, #000 35%, transparent 100%);
+    mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, #000 35%, transparent 100%);
+  }
+
+  .lp-grid-light {
+    background-image:
+      linear-gradient(rgba(124, 58, 237, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 58, 237, 0.06) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 100%);
+  }
+
+  /* --- Cursor-tracked spotlight (set --mx/--my from JS) --- */
+  .lp-spot { position: relative; isolation: isolate; }
+  .lp-spot::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    background: radial-gradient(
+      440px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(139, 92, 246, 0.16),
+      transparent 62%
+    );
+  }
+  .lp-spot:hover::before { opacity: 1; }
+  .lp-spot > * { position: relative; z-index: 1; }
+
+  /* Cursor-tracked gradient border */
+  .lp-spot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    padding: 1px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    background: radial-gradient(
+      300px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(167, 139, 250, 0.85),
+      rgba(34, 211, 238, 0.25) 45%,
+      transparent 70%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  .lp-spot:hover::after { opacity: 1; }
+
+  /* --- Animated gradient text --- */
+  .lp-shine {
+    background-image: linear-gradient(
+      100deg,
+      #a78bfa 0%,
+      #ffffff 22%,
+      #22d3ee 42%,
+      #c4b5fd 62%,
+      #ffffff 82%,
+      #a78bfa 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: lpGradientPan 7s linear infinite;
+  }
+
+  /* --- Infinite marquee --- */
+  .lp-marquee-wrap {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .lp-marquee {
+    display: flex;
+    width: max-content;
+    animation: lpMarquee var(--speed, 42s) linear infinite;
+    will-change: transform;
+  }
+  .lp-marquee-rev { animation-name: lpMarqueeRev; }
+  .lp-marquee-wrap:hover .lp-marquee { animation-play-state: paused; }
+
+  /* --- Chart bars --- */
+  .lp-bar {
+    height: var(--h, 50%);
+    animation: lpBarGrow 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--lp-delay, 0ms);
+  }
+
+  /* --- Rotating conic glow border --- */
+  .lp-conic { position: relative; isolation: isolate; }
+  .lp-conic::before {
+    content: '';
+    position: absolute;
+    inset: -140%;
+    z-index: -2;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(167, 139, 250, 0.9) 40deg,
+      rgba(34, 211, 238, 0.55) 90deg,
+      transparent 150deg,
+      transparent 360deg
+    );
+    animation: lpSpin 8s linear infinite;
+  }
+  .lp-conic::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--lp-conic-bg, #0a0a0a);
+  }
+
+  /* --- Magnetic button --- */
+  .lp-magnetic {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  /* --- Sheen sweep on hover --- */
+  .lp-sheen { position: relative; overflow: hidden; }
+  .lp-sheen > .lp-sheen-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: translateX(-120%) skewX(-18deg);
+    pointer-events: none;
+  }
+  .lp-sheen:hover > .lp-sheen-bar { animation: lpSheen 0.9s ease; }
+
+  /* --- Live status dot --- */
+  .lp-live { position: relative; display: inline-flex; }
+  .lp-live::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: currentColor;
+    animation: lpPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  /* --- Range slider --- */
+  .lp-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      90deg,
+      var(--color-brand-600) 0%,
+      var(--color-brand-500) var(--fill, 50%),
+      #e5e5e5 var(--fill, 50%),
+      #e5e5e5 100%
+    );
+    outline: none;
+    cursor: pointer;
+  }
+  .lp-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 3px solid var(--color-brand-600);
+    box-shadow: 0 4px 14px -4px rgba(109, 40, 217, 0.7);
+    transition: transform 0.2s ease;
+  }
+  .lp-range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  .lp-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 3px solid var(--color-brand-600);
+    box-shadow: 0 4px 14px -4px rgba(109, 40, 217, 0.7);
+  }
+
+  /* --- Accordion --- */
+  .lp-acc-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-acc-body > div { overflow: hidden; }
+  .lp-acc.is-open .lp-acc-body { grid-template-rows: 1fr; }
+
+  /* --- Map pin --- */
+  .lp-pin { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+  .lp-pin.is-active { transform: scale(1.55); }
+
+  /* --- Scrollbar-free horizontal scroll --- */
+  .lp-noscroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .lp-noscroll::-webkit-scrollbar { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .lp-aurora,
+  .lp-marquee,
+  .lp-shine,
+  .lp-bar,
+  .lp-live::before,
+  .lp-conic::before,
+  .lp-sheen:hover > .lp-sheen-bar {
+    animation: none !important;
+  }
+  .lp-shine { color: var(--color-brand-300); }
+}

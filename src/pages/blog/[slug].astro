@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { blogUrl, contactUrl } from '../../lib/urls';
 import { business } from '../../data/business';
 import { Icon } from 'astro-icon/components';
@@ -67,13 +66,6 @@ const schema = {
   canonicalUrl={`${business.siteUrl}${blogUrl(post.id)}`}
   schema={schema}
 >
-  <Breadcrumbs
-    crumbs={[
-      { label: 'Insights', href: '/blog/' },
-      { label: post.data.title },
-    ]}
-  />
-
   <article class="mx-auto max-w-3xl px-5 py-14 lg:px-8 lg:py-20">
     <header class="pb-8">
       <div class="flex flex-wrap items-center gap-3">

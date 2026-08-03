@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { blogUrl } from '../../lib/urls';
 import { business } from '../../data/business';
 import { Icon } from 'astro-icon/components';
@@ -10,110 +9,400 @@ const posts = (await getCollection('blog')).sort(
   (a, b) => new Date(b.data.publishDate).getTime() - new Date(a.data.publishDate).getTime()
 );
 
-const categoryColors: Record<string, { bg: string; text: string }> = {
-  'paid-ads': { bg: 'bg-brand-100', text: 'text-brand-700' },
-  'cro': { bg: 'bg-green-100', text: 'text-green-700' },
-  'analytics': { bg: 'bg-blue-100', text: 'text-blue-700' },
-  'social-media': { bg: 'bg-pink-100', text: 'text-pink-700' },
-  'strategy': { bg: 'bg-amber-100', text: 'text-amber-700' },
-  'news': { bg: 'bg-stone-200', text: 'text-stone-700' },
+// ---------- Category presentation ----------
+const categoryMeta: Record<string, { label: string; icon: string; chip: string }> = {
+  'paid-ads': {
+    label: 'Paid ads',
+    icon: 'lucide:target',
+    chip: 'bg-brand-50 text-brand-700 ring-brand-100',
+  },
+  cro: {
+    label: 'CRO',
+    icon: 'lucide:mouse-pointer-click',
+    chip: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+  },
+  analytics: {
+    label: 'Analytics',
+    icon: 'lucide:activity',
+    chip: 'bg-sky-50 text-sky-700 ring-sky-100',
+  },
+  'social-media': {
+    label: 'Social',
+    icon: 'lucide:megaphone',
+    chip: 'bg-pink-50 text-pink-700 ring-pink-100',
+  },
+  strategy: {
+    label: 'Strategy',
+    icon: 'lucide:layers',
+    chip: 'bg-amber-50 text-amber-700 ring-amber-100',
+  },
+  news: {
+    label: 'News',
+    icon: 'lucide:newspaper',
+    chip: 'bg-neutral-100 text-neutral-700 ring-neutral-200',
+  },
 };
 
+const metaFor = (category: string) => categoryMeta[category] ?? categoryMeta.news;
+
+/**
+ * Posts carry no image of their own, so each one borrows an illustration from a
+ * per-category pool. Cycling through the pool keeps two posts in the same
+ * category from showing the same thumbnail.
+ */
+const categoryImages: Record<string, string[]> = {
+  'paid-ads': [
+    '/images/performance/google-ads-journey.webp',
+    '/images/performance/tiktok-journey.webp',
+    '/images/performance/meta-funnel.webp',
+    '/images/performance/google-ads-pmax.webp',
+  ],
+  cro: [
+    '/images/performance/cro-ab-testing.webp',
+    '/images/performance/cro-funnel.webp',
+    '/images/performance/cro-mobile.webp',
+  ],
+  analytics: [
+    '/images/performance/analytics-architecture.webp',
+    '/images/performance/analytics-attribution.webp',
+    '/images/performance/analytics-optimization.webp',
+  ],
+  'social-media': [
+    '/images/performance/performance-creative.webp',
+    '/images/performance/meta-creative-testing.webp',
+  ],
+  strategy: [
+    '/images/performance/uae-performance.webp',
+    '/images/performance/performance-engine-alt.webp',
+    '/images/performance/paid-media-audit.webp',
+    '/images/performance/attribution-alt.webp',
+  ],
+  news: ['/images/performance/services-ecosystem.webp'],
+};
+
+const usedPerCategory: Record<string, number> = {};
+const postImages = new Map<string, string>();
+for (const post of posts) {
+  const pool = categoryImages[post.data.category] ?? categoryImages.news;
+  const index = usedPerCategory[post.data.category] ?? 0;
+  usedPerCategory[post.data.category] = index + 1;
+  postImages.set(post.id, pool[index % pool.length]);
+}
+const imageFor = (id: string) => postImages.get(id) ?? categoryImages.news[0];
+
 function formatDate(iso: string): string {
-  const date = new Date(iso + 'T00:00:00');
-  return date.toLocaleDateString('en-US', {
+  return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', {
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
   });
 }
+
+// The lead article: newest flagged post, otherwise simply the newest.
+const lead = posts.find((post) => post.data.featured) ?? posts[0];
+
+// Only offer filters for categories that actually have posts.
+const activeCategories = Object.keys(categoryMeta)
+  .filter((key) => posts.some((post) => post.data.category === key))
+  .map((key) => ({
+    key,
+    ...categoryMeta[key],
+    count: posts.filter((post) => post.data.category === key).length,
+  }));
+
+const latestUpdate = posts.length ? formatDate(posts[0].data.publishDate) : null;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: `Insights | ${business.name}`,
+  url: `${business.siteUrl}/blog/`,
+  description:
+    'Performance marketing tips, guides, and insights from CLICKNX. Data-driven strategies for UAE businesses.',
+  blogPost: posts.map((post) => ({
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    description: post.data.description,
+    datePublished: post.data.publishDate,
+    author: { '@type': 'Organization', name: post.data.author },
+    url: `${business.siteUrl}${blogUrl(post.id)}`,
+  })),
+};
 ---
 
 <BaseLayout
   title={`Marketing Insights & Tips | ${business.name}`}
   description="Performance marketing tips, guides, and insights from CLICKNX. Data-driven strategies for UAE businesses looking to grow with Google Ads, Meta Ads, CRO, and more."
+  schema={schema}
 >
-  <Breadcrumbs crumbs={[{ label: 'Insights' }]} />
-
-  <!-- ============ HERO ============ -->
-  <section class="relative overflow-hidden bg-neutral-950 py-20 lg:py-28">
-    <div class="absolute inset-0">
-      <img
-        src="/images/performance/performance-engine-alt.webp"
-        alt="Illustrated performance marketing engine connecting advertising inputs, campaign systems, and measurable growth"
-        class="h-full w-full object-cover opacity-40"
-        width="1200"
-        height="675"
-        loading="eager"
-      />
+  <!-- ============================================================
+       1 — MASTHEAD · typographic, no competing imagery
+       ============================================================ -->
+  <section class="relative overflow-hidden bg-white pb-12 pt-20 lg:pt-28">
+    <div class="lp-grid-light pointer-events-none absolute inset-0"></div>
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div class="lp-aurora size-[28rem] -left-32 -top-40 bg-brand-300/20" style="animation-duration:28s"></div>
     </div>
-    <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/95 via-neutral-950/80 to-neutral-950/60" />
 
     <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
-      <div class="mx-auto max-w-3xl text-center">
-        <span class="inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-300">
+      <div class="max-w-3xl">
+        <span class="section-label lp-reveal">
           <Icon name="lucide:book-open" class="size-3.5" />
           Insights
         </span>
-        <h1 class="mt-6 font-display text-5xl font-semibold tracking-tight text-white sm:text-6xl">
-          Marketing Tips & Strategies
+        <h1 class="lp-reveal mt-6 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-tight text-neutral-900 sm:text-6xl lg:text-[4rem]" style="--lp-delay:60ms">
+          Field notes on <span class="text-brand-600">performance marketing</span>
         </h1>
-        <p class="mt-6 text-lg leading-relaxed text-neutral-300">
-          Practical advice, campaign strategies, and industry insights from the CLICKNX team. Stay informed and maximize your marketing ROI.
+        <p class="lp-reveal mt-6 max-w-2xl text-lg leading-relaxed text-neutral-500" style="--lp-delay:140ms">
+          What we are learning running paid media for UAE businesses — the tactics that worked, the ones that did not,
+          and the numbers behind both.
         </p>
+      </div>
+
+      <!-- masthead rule with publication meta -->
+      <div class="lp-reveal mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-neutral-200 pt-5 text-sm text-neutral-500" style="--lp-delay:220ms">
+        <span class="font-medium text-neutral-900">{posts.length} {posts.length === 1 ? 'article' : 'articles'}</span>
+        <span class="hidden h-4 w-px bg-neutral-200 sm:block"></span>
+        <span>{activeCategories.length} topics</span>
+        {latestUpdate && (
+          <>
+            <span class="hidden h-4 w-px bg-neutral-200 sm:block"></span>
+            <span>Last updated {latestUpdate}</span>
+          </>
+        )}
       </div>
     </div>
   </section>
 
-  <!-- ============ BLOG GRID ============ -->
-  <section class="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
-    {posts.length === 0 ? (
-      <p class="mt-12 text-center text-stone-500">
-        No articles yet. Check back soon for performance marketing insights.
-      </p>
-    ) : (
-      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => {
-          const colors = categoryColors[post.data.category] || categoryColors.news;
-          return (
-            <a
-              href={blogUrl(post.id)}
-              class="card-hover group flex flex-col rounded-2xl border border-stone-200 bg-white transition-all duration-300 hover:border-brand-200 hover:shadow-xl hover:shadow-brand-100/50"
-            >
-              <div class="flex flex-1 flex-col p-7">
-                <div class="flex items-center gap-3">
-                  <span class={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${colors.bg} ${colors.text}`}>
-                    {post.data.category.replace('-', ' ')}
+  {posts.length === 0 ? (
+    <section class="mx-auto max-w-7xl px-5 py-24 text-center lg:px-8">
+      <p class="text-neutral-500">No articles yet. Check back soon for performance marketing insights.</p>
+    </section>
+  ) : (
+    <>
+      <!-- ============================================================
+           2 — LEAD ARTICLE · split card
+           ============================================================ -->
+      <section class="bg-white pb-16 pt-12 lg:pb-20 lg:pt-16">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+          <a
+            href={blogUrl(lead.id)}
+            class="lp-reveal group grid overflow-hidden rounded-3xl border border-neutral-200 bg-white transition-all duration-500 hover:border-brand-200 hover:shadow-[0_30px_70px_-40px_rgba(76,29,149,0.45)] lg:grid-cols-2"
+          >
+            <div class="relative order-1 aspect-[16/10] overflow-hidden bg-neutral-950 lg:order-2 lg:aspect-auto">
+              <img
+                src={imageFor(lead.id)}
+                alt=""
+                aria-hidden="true"
+                class="size-full object-cover transition-transform duration-[900ms] group-hover:scale-105"
+                width="900"
+                height="560"
+                loading="eager"
+              />
+              <span class="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-md">
+                <Icon name="lucide:star" class="size-3" />
+                Featured
+              </span>
+            </div>
+
+            <div class="order-2 flex flex-col justify-center p-8 lg:order-1 lg:p-12">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${metaFor(lead.data.category).chip}`}>
+                  <Icon name={metaFor(lead.data.category).icon} class="size-3.5" />
+                  {metaFor(lead.data.category).label}
+                </span>
+                {lead.data.readingTime && (
+                  <span class="flex items-center gap-1.5 text-xs text-neutral-400">
+                    <Icon name="lucide:clock" class="size-3.5" />
+                    {lead.data.readingTime}
                   </span>
-                  {post.data.readingTime && (
-                    <span class="flex items-center gap-1 text-xs text-stone-400">
-                      <Icon name="lucide:clock" class="size-3" />
-                      {post.data.readingTime}
-                    </span>
-                  )}
-                </div>
-
-                <h2 class="mt-4 font-display text-lg text-brand-950 group-hover:text-brand-700 transition-colors">
-                  {post.data.title}
-                </h2>
-
-                <p class="mt-3 flex-1 text-sm leading-relaxed text-stone-600">
-                  {post.data.description}
-                </p>
-
-                <div class="mt-5 flex items-center gap-2 border-t border-stone-100 pt-4 text-xs text-stone-400">
-                  <Icon name="lucide:calendar" class="size-3.5" />
-                  <time datetime={post.data.publishDate}>
-                    {formatDate(post.data.publishDate)}
-                  </time>
-                  <span class="text-stone-300">|</span>
-                  <span>{post.data.author}</span>
-                </div>
+                )}
               </div>
-            </a>
-          );
-        })}
+
+              <h2 class="mt-5 font-display text-3xl font-semibold leading-tight tracking-tight text-neutral-900 transition-colors duration-300 group-hover:text-brand-700 lg:text-4xl">
+                {lead.data.title}
+              </h2>
+              <p class="mt-4 text-base leading-relaxed text-neutral-500">{lead.data.description}</p>
+
+              <div class="mt-8 flex items-center gap-3 border-t border-neutral-100 pt-6 text-sm">
+                <span class="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-xs font-bold text-white">
+                  {lead.data.author.charAt(0)}
+                </span>
+                <span>
+                  <span class="block font-medium text-neutral-800">{lead.data.author}</span>
+                  <time datetime={lead.data.publishDate} class="block text-xs text-neutral-400">
+                    {formatDate(lead.data.publishDate)}
+                  </time>
+                </span>
+                <span class="ml-auto inline-flex items-center gap-1.5 font-semibold text-brand-600">
+                  Read
+                  <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           3 — ARCHIVE · filterable editorial rows
+           ============================================================ -->
+      <section class="border-t border-neutral-200 bg-neutral-50 py-16 lg:py-20">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+          <div class="lp-reveal flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <h2 class="font-display text-2xl font-semibold tracking-tight text-neutral-900">
+              All articles
+              <span id="bl-count" class="ml-1 text-neutral-400">{posts.length}</span>
+            </h2>
+
+            <div class="flex flex-wrap gap-2" role="group" aria-label="Filter articles by topic">
+              <button
+                type="button"
+                class="bl-filter inline-flex items-center gap-2 rounded-full border border-neutral-900 bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition-all duration-300"
+                data-filter="all"
+                aria-pressed="true"
+              >
+                All
+              </button>
+              {activeCategories.map((category) => (
+                <button
+                  type="button"
+                  class="bl-filter inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2 text-xs font-semibold text-neutral-500 transition-all duration-300 hover:border-neutral-400 hover:text-neutral-900"
+                  data-filter={category.key}
+                  aria-pressed="false"
+                >
+                  <Icon name={category.icon} class="size-3.5" />
+                  {category.label}
+                  <span class="text-neutral-400">{category.count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <ol id="bl-list" class="mt-10 border-t border-neutral-200">
+            {posts.map((post, i) => {
+              const meta = metaFor(post.data.category);
+              return (
+                <li class="bl-item lp-reveal" data-cat={post.data.category} style={`--lp-delay:${Math.min(i, 6) * 50}ms`}>
+                  <a
+                    href={blogUrl(post.id)}
+                    class="group flex items-start gap-5 border-b border-neutral-200 py-6 transition-[padding] duration-300 hover:pl-3 sm:items-center sm:gap-7"
+                  >
+                    <span class="relative hidden size-20 shrink-0 overflow-hidden rounded-2xl bg-neutral-950 sm:block">
+                      <img
+                        src={imageFor(post.id)}
+                        alt=""
+                        aria-hidden="true"
+                        class="size-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        width="160"
+                        height="160"
+                        loading="lazy"
+                      />
+                    </span>
+
+                    <span class="min-w-0 flex-1">
+                      <span class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-neutral-400">
+                        <span class={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-semibold ring-1 ${meta.chip}`}>
+                          {meta.label}
+                        </span>
+                        <time datetime={post.data.publishDate}>{formatDate(post.data.publishDate)}</time>
+                        {post.data.readingTime && (
+                          <>
+                            <span class="text-neutral-300">·</span>
+                            <span>{post.data.readingTime}</span>
+                          </>
+                        )}
+                      </span>
+
+                      <span class="mt-2 block font-display text-lg font-semibold leading-snug tracking-tight text-neutral-900 transition-colors duration-300 group-hover:text-brand-700 sm:text-xl">
+                        {post.data.title}
+                      </span>
+                      <span class="mt-1.5 block text-sm leading-relaxed text-neutral-500 line-clamp-2">
+                        {post.data.description}
+                      </span>
+                    </span>
+
+                    <span class="hidden size-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 text-neutral-400 transition-all duration-300 group-hover:border-brand-300 group-hover:bg-brand-50 group-hover:text-brand-600 sm:flex">
+                      <Icon name="lucide:arrow-up-right" class="size-4" />
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+
+          <p id="bl-empty" class="hidden py-12 text-center text-sm text-neutral-400">
+            No articles in this topic yet.
+          </p>
+        </div>
+      </section>
+    </>
+  )}
+
+  <!-- ============================================================
+       4 — CTA band
+       ============================================================ -->
+  <section class="bg-white py-20 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="lp-reveal flex flex-col items-start gap-8 rounded-3xl bg-neutral-950 px-8 py-12 sm:px-12 lg:flex-row lg:items-center lg:justify-between lg:px-14">
+        <div class="max-w-xl">
+          <h2 class="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            Want this applied to your account?
+          </h2>
+          <p class="mt-4 text-base leading-relaxed text-neutral-400">
+            Reading about it is one thing. Book a free audit and we will tell you which of these ideas your account
+            actually needs.
+          </p>
+        </div>
+        <a
+          href="/contact/"
+          data-magnetic
+          class="lp-magnetic lp-sheen group inline-flex shrink-0 items-center justify-center gap-2.5 rounded-2xl bg-white px-7 py-4 text-sm font-semibold text-neutral-900"
+        >
+          <span class="lp-sheen-bar"></span>
+          Get a free audit
+          <Icon name="lucide:arrow-right" class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+        </a>
       </div>
-    )}
+    </div>
   </section>
 </BaseLayout>
+
+<script>
+  import '../../scripts/motion';
+
+  // ---------- Topic filter ----------
+  const filters = document.querySelectorAll<HTMLButtonElement>('.bl-filter');
+  const items = document.querySelectorAll<HTMLElement>('.bl-item');
+  const countEl = document.getElementById('bl-count');
+  const emptyEl = document.getElementById('bl-empty');
+
+  filters.forEach((button) => {
+    button.addEventListener('click', () => {
+      const key = button.dataset.filter || 'all';
+
+      filters.forEach((other) => {
+        const active = other === button;
+        other.setAttribute('aria-pressed', String(active));
+        other.classList.toggle('border-neutral-900', active);
+        other.classList.toggle('bg-neutral-900', active);
+        other.classList.toggle('text-white', active);
+        other.classList.toggle('border-neutral-200', !active);
+        other.classList.toggle('bg-white', !active);
+        other.classList.toggle('text-neutral-500', !active);
+        other.classList.toggle('hover:border-neutral-400', !active);
+        other.classList.toggle('hover:text-neutral-900', !active);
+      });
+
+      let shown = 0;
+      items.forEach((item) => {
+        const match = key === 'all' || item.dataset.cat === key;
+        item.classList.toggle('hidden', !match);
+        if (match) shown++;
+      });
+
+      if (countEl) countEl.textContent = String(shown);
+      emptyEl?.classList.toggle('hidden', shown > 0);
+    });
+  });
+</script>
