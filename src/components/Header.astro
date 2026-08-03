@@ -1,15 +1,32 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { business } from '../data/business';
+
+// One source of truth — the desktop nav and the mobile drawer both read this.
+const navLinks = [
+  { href: '/', label: 'Home', icon: 'lucide:home' },
+  { href: '/about/', label: 'About Us', icon: 'lucide:info' },
+  { href: '/services/', label: 'Services', icon: 'lucide:target' },
+  { href: '/blog/', label: 'Insights', icon: 'lucide:book-open' },
+  { href: '/areas/', label: 'Locations', icon: 'lucide:map-pin' },
+  { href: '/contact/', label: 'Contact Us', icon: 'lucide:mail' },
+];
+
+/**
+ * Marks a nav item current. Detail pages roll up to their section, so
+ * /services/google-ads-management/ highlights "Services" and /areas/dubai/
+ * highlights "Locations".
+ */
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 ---
 
 <header
-  class="site-header sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl backdrop-saturate-150 transition-all duration-300"
+  class="site-header sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl backdrop-saturate-150 transition-shadow duration-300"
   id="site-header"
 >
-  <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
-    <!-- Logo -->
-    <a href="/" class="group flex items-center gap-3">
+  <div class="mx-auto flex h-20 max-w-7xl items-center gap-6 px-5 lg:px-8">
+    <a href="/" class="group flex shrink-0 items-center" aria-label={`${business.name} home`}>
       <img
         src="/images/logo.png"
         alt={business.name}
@@ -19,46 +36,40 @@ import { business } from '../data/business';
       />
     </a>
 
-    <!-- Desktop navigation -->
-    <nav class="hidden items-center gap-0.5 xl:flex">
-      {[
-        { href: '/', label: 'Home' },
-        { href: '/about/', label: 'About Us' },
-        { href: '/services/', label: 'Services' },
-        { href: '/blog/', label: 'Insights' },
-        { href: '/areas/', label: 'Locations' },
-        { href: '/contact/', label: 'Contact Us' },
-      ].map((link) => (
+    <!-- desktop nav, centred between the logo and the actions -->
+    <nav class="hidden flex-1 items-center justify-center gap-1 lg:flex" aria-label="Main">
+      {navLinks.map((link) => (
         <a
           href={link.href}
-          class="rounded-lg px-4 py-2 text-sm font-medium text-neutral-600 transition-all duration-200 hover:bg-brand-50 hover:text-brand-700"
+          aria-current={isActive(link.href) ? 'page' : undefined}
+          class={`rounded-lg px-3.5 py-2 text-sm transition-colors duration-200 ${
+            isActive(link.href)
+              ? 'bg-brand-50 font-semibold text-brand-700'
+              : 'font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+          }`}
         >
           {link.label}
         </a>
       ))}
     </nav>
 
-    <!-- Right side actions -->
-    <div class="flex items-center gap-3">
+    <div class="ml-auto flex shrink-0 items-center gap-2.5 lg:ml-0">
+      <!-- one CTA that adapts, rather than two elements toggled by breakpoint -->
       <a
         href="/contact/"
-        class="gradient-cta hidden sm:inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5"
+        class="gradient-cta group inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 max-sm:size-10 sm:px-5 sm:py-2.5"
       >
-        Get Free Consultation
-        <Icon name="lucide:arrow-right" class="size-4" />
-      </a>
-      <a
-        href="/contact/"
-        class="gradient-cta inline-flex sm:hidden size-10 items-center justify-center rounded-xl text-white transition-all"
-      >
-        <Icon name="lucide:mail" class="size-4" />
+        <span class="hidden sm:inline">Get Free Consultation</span>
+        <Icon name="lucide:arrow-right" class="hidden size-4 transition-transform duration-300 group-hover:translate-x-0.5 sm:inline" />
+        <Icon name="lucide:mail" class="size-4 sm:hidden" />
       </a>
 
-      <!-- Mobile menu button -->
       <button
         type="button"
-        class="inline-flex size-10 items-center justify-center rounded-xl text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 xl:hidden"
+        class="inline-flex size-10 items-center justify-center rounded-xl text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900 lg:hidden"
         aria-label="Toggle menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
         id="mobile-menu-btn"
       >
         <Icon name="lucide:menu" class="size-5" id="menu-icon-open" />
@@ -67,29 +78,35 @@ import { business } from '../data/business';
     </div>
   </div>
 
-  <!-- Mobile drawer -->
-  <div class="hidden border-t border-neutral-100 bg-white xl:hidden" id="mobile-menu">
-    <nav class="mx-auto max-w-7xl space-y-1 px-5 py-4">
-      {[
-        { href: '/', label: 'Home', icon: 'lucide:home' },
-        { href: '/about/', label: 'About Us', icon: 'lucide:info' },
-        { href: '/services/', label: 'Services', icon: 'lucide:target' },
-        { href: '/blog/', label: 'Insights', icon: 'lucide:book-open' },
-        { href: '/areas/', label: 'Locations', icon: 'lucide:map-pin' },
-        { href: '/contact/', label: 'Contact Us', icon: 'lucide:mail' },
-      ].map((link) => (
+  <!-- mobile drawer -->
+  <div class="hidden border-t border-neutral-200/70 bg-white lg:hidden" id="mobile-menu">
+    <nav class="mx-auto max-w-7xl space-y-1 px-5 py-4" aria-label="Mobile">
+      {navLinks.map((link) => (
         <a
           href={link.href}
-          class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-brand-50 hover:text-brand-700"
+          aria-current={isActive(link.href) ? 'page' : undefined}
+          class={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${
+            isActive(link.href)
+              ? 'bg-brand-50 font-semibold text-brand-700'
+              : 'font-medium text-neutral-700 hover:bg-neutral-100'
+          }`}
         >
-          <Icon name={link.icon} class="size-5 text-brand-500" />
+          <Icon name={link.icon} class={isActive(link.href) ? 'size-5 text-brand-600' : 'size-5 text-neutral-400'} />
           {link.label}
         </a>
       ))}
-      <div class="pt-3">
+
+      <div class="border-t border-neutral-200/70 pt-4">
+        <a
+          href={business.phoneHref}
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+        >
+          <Icon name="lucide:phone" class="size-5 text-neutral-400" />
+          {business.phone}
+        </a>
         <a
           href="/contact/"
-          class="gradient-cta flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all"
+          class="gradient-cta mt-2 flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white"
         >
           Get Free Consultation
           <Icon name="lucide:arrow-right" class="size-4" />
@@ -105,22 +122,34 @@ import { business } from '../data/business';
   const iconOpen = document.getElementById('menu-icon-open');
   const iconClose = document.getElementById('menu-icon-close');
 
-  btn?.addEventListener('click', () => {
-    menu?.classList.toggle('hidden');
-    iconOpen?.classList.toggle('hidden');
-    iconClose?.classList.toggle('hidden');
+  function setMenu(open: boolean) {
+    menu?.classList.toggle('hidden', !open);
+    iconOpen?.classList.toggle('hidden', open);
+    iconClose?.classList.toggle('hidden', !open);
+    btn?.setAttribute('aria-expanded', String(open));
+  }
+
+  btn?.addEventListener('click', () => setMenu(menu?.classList.contains('hidden') ?? true));
+
+  // Close on Escape, and whenever a link inside the drawer is followed.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !menu?.classList.contains('hidden')) {
+      setMenu(false);
+      btn?.focus();
+    }
+  });
+  menu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setMenu(false)));
+
+  // Leaving the mobile breakpoint should not strand an open drawer.
+  const wide = window.matchMedia('(min-width: 1024px)');
+  wide.addEventListener('change', (e) => {
+    if (e.matches) setMenu(false);
   });
 
   const header = document.getElementById('site-header');
   window.addEventListener(
     'scroll',
-    () => {
-      if (window.scrollY > 8) {
-        header?.classList.add('shadow-sm');
-      } else {
-        header?.classList.remove('shadow-sm');
-      }
-    },
-    { passive: true },
+    () => header?.classList.toggle('shadow-sm', window.scrollY > 8),
+    { passive: true }
   );
 </script>

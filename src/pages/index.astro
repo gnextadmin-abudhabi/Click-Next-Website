@@ -354,16 +354,16 @@ const schema = {
               Abu Dhabi · Performance Marketing
             </span>
             <span class="hidden h-3 w-px bg-white/15 sm:block"></span>
-            <span class="hidden text-[11px] font-medium text-neutral-500 sm:block">Est. {business.foundedYear}</span>
+            <span class="hidden text-[11px] font-medium text-neutral-400 sm:block">Est. {business.foundedYear}</span>
           </div>
 
           <h1 class="mt-7 font-display text-[2.75rem] font-semibold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
             <span class="lp-reveal block" style="--lp-delay:80ms">Ad spend in.</span>
             <span class="lp-reveal lp-shine block" style="--lp-delay:180ms">Revenue out.</span>
-            <span class="lp-reveal block text-neutral-500" style="--lp-delay:280ms">Nothing in between unmeasured.</span>
+            <span class="lp-reveal block text-white" style="--lp-delay:280ms">Nothing in between unmeasured.</span>
           </h1>
 
-          <p class="lp-reveal mt-7 max-w-xl text-lg leading-relaxed text-neutral-400" style="--lp-delay:360ms">
+          <p class="lp-reveal mt-7 max-w-xl text-lg leading-relaxed text-neutral-300" style="--lp-delay:360ms">
             We run Google, Meta, TikTok and LinkedIn campaigns for UAE businesses — wired to conversion-built landing pages and
             tracking that connects every click to a booked deal.
           </p>
@@ -405,13 +405,13 @@ const schema = {
                     <StarIcon class="size-3.5" />
                   ))}
                 </div>
-                <p class="mt-0.5 text-xs text-neutral-500">{avgRating} from {reviews.length} client reviews</p>
+                <p class="mt-0.5 text-xs text-neutral-400">{avgRating} from {reviews.length} client reviews</p>
               </div>
             </div>
             <div class="h-10 w-px bg-white/10"></div>
             <div class="flex flex-wrap gap-x-5 gap-y-2">
               {business.certifications.map((c) => (
-                <span class="inline-flex items-center gap-1.5 text-xs text-neutral-500">
+                <span class="inline-flex items-center gap-1.5 text-xs text-neutral-400">
                   <Icon name="lucide:badge-check" class="size-3.5 text-brand-400" />
                   {c}
                 </span>
@@ -433,7 +433,7 @@ const schema = {
                   <span class="size-2.5 rounded-full bg-amber-400/70"></span>
                   <span class="size-2.5 rounded-full bg-emerald-400/70"></span>
                 </div>
-                <span class="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-widest text-neutral-500">
+                <span class="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-widest text-neutral-400">
                   <span class="size-1.5 animate-pulse rounded-full bg-emerald-400"></span>
                   Live
                 </span>
@@ -444,7 +444,7 @@ const schema = {
                 {channels.map((c, i) => (
                   <button
                     type="button"
-                    class={`lp-ch-tab flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-300 ${i === 0 ? 'bg-white/10 text-white ring-1 ring-white/15' : 'text-neutral-500 hover:bg-white/5 hover:text-neutral-300'}`}
+                    class={`lp-ch-tab flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-300 ${i === 0 ? 'bg-white/10 text-white ring-1 ring-white/15' : 'text-neutral-400 hover:bg-white/5 hover:text-neutral-300'}`}
                     data-ch={c.key}
                     data-roas={c.roas}
                     data-spend={c.spend}
@@ -461,7 +461,7 @@ const schema = {
               </div>
 
               <div class="p-6">
-                <p class="text-xs font-medium uppercase tracking-widest text-neutral-500">Return on ad spend</p>
+                <p class="text-xs font-medium uppercase tracking-widest text-neutral-400">Return on ad spend</p>
                 <div class="mt-2 flex items-end gap-3">
                   <span id="lp-roas" class="font-display text-6xl font-bold leading-none tracking-tight text-white">6.2x</span>
                   <span
@@ -485,7 +485,7 @@ const schema = {
                     </div>
                   ))}
                 </div>
-                <div class="mt-2 flex justify-between text-[10px] text-neutral-600">
+                <div class="mt-2 flex justify-between text-[10px] text-neutral-500">
                   <span>Week 1</span><span>Week 8</span>
                 </div>
 
@@ -496,13 +496,13 @@ const schema = {
                     { id: 'lp-cpl', label: 'Cost / lead', value: channels[0].cpl },
                   ].map((s) => (
                     <div class="rounded-xl border border-white/[0.07] bg-white/[0.03] p-3">
-                      <p class="text-[10px] uppercase tracking-wider text-neutral-500">{s.label}</p>
+                      <p class="text-[10px] uppercase tracking-wider text-neutral-400">{s.label}</p>
                       <p id={s.id} class="mt-1 font-display text-sm font-semibold text-white">{s.value}</p>
                     </div>
                   ))}
                 </div>
 
-                <p class="mt-5 text-[10px] leading-relaxed text-neutral-600">
+                <p class="mt-5 text-[10px] leading-relaxed text-neutral-500">
                   Illustrative dashboard built from anonymised client accounts. Individual results vary by market and budget.
                 </p>
               </div>
