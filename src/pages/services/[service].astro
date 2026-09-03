@@ -144,7 +144,11 @@ const faqSchema = {
           <h3 class="font-display text-xl font-semibold text-white mb-2">Get a Free Strategy Call</h3>
           <p class="text-sm text-neutral-400 mb-6">Tell us about your business and goals. We will get back within 24 hours.</p>
 
-          <form action="#" method="POST" class="space-y-4">
+          <form action="https://formsubmit.co/info@clicknx.com" method="POST" class="space-y-4">
+            <input type="hidden" name="_subject" value="New service enquiry from clicknx.com" />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
             <div>
               <label for="hero-name" class="block text-xs font-medium text-neutral-400 mb-1">Full Name</label>
               <input
