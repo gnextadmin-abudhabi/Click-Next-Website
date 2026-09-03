@@ -66,9 +66,9 @@ export const business: Business = {
   description: 'CLICKNX is a performance marketing agency based in Abu Dhabi, specializing in paid ads, conversion rate optimization, and landing page design. We help UAE businesses scale with data-driven Google Ads, Meta Ads, and programmatic campaigns.',
 
   // --- Contact ---
-  phone: '+971 55 611 5985',
-  phoneTel: '+971556115985',
-  phoneHref: 'tel:+971556115985',
+  phone: '+971 56 611 9525',
+  phoneTel: '+971566119525',
+  phoneHref: 'tel:+971566119525',
   phoneSecondary: '+971 50 611 5911',
   email: 'info@clicknx.com',
 
