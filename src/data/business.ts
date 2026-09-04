@@ -92,11 +92,11 @@ export const business: Business = {
 
   // --- Social Media ---
   socialMedia: {
-    facebook: '',
-    instagram: '',
+    facebook: 'https://www.facebook.com/clicknx.uae/',
+    instagram: 'https://www.instagram.com/clicknx.uae/',
     twitter: '',
     youtube: '',
-    linkedin: '',
+    linkedin: 'https://www.linkedin.com/company/clicknx-abudhabi/',
     nextdoor: '',
     yelp: '',
   },
